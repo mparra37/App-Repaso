@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Repaso TC1037</title>
+  <meta name="description" content="Repaso de funciones, math y condicionales en Python para TC1037 Pensamiento Algorítmico.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%232E6BB0'/%3E%3Ctext x='16' y='22' font-family='Consolas,monospace' font-size='15' font-weight='700' fill='white' text-anchor='middle'%3Edef%3C/text%3E%3C/svg%3E">
+  <link rel="stylesheet" href="css/estilos.css">
+  <script src="js/config.js"></script>
+  <script type="module" src="js/app.js"></script>
+</head>
+<body>
+  <header class="barra">
+    <div class="barra__contenido">
+      <a class="marca" href="#/">
+        <span class="marca__logo" aria-hidden="true">def</span>
+        <span>
+          <span class="marca__curso">TC1037 · Pensamiento Algorítmico</span>
+          <span class="marca__titulo">Repaso para el examen</span>
+        </span>
+      </a>
+      <span class="barra__progreso" id="progreso-global"></span>
+    </div>
+  </header>
+
+  <main id="vista" class="vista" tabindex="-1">
+    <p class="cargando">Cargando…</p>
+  </main>
+
+  <footer class="pie">
+    Funciones · math · condicionales. Practica a mano: en el examen no hay computadora.
+  </footer>
+
+  <dialog id="dialogo-codigo" class="dialogo">
+    <form method="dialog" class="dialogo__forma">
+      <h2>Código de clase</h2>
+      <p>Para leer fotos y darte retroalimentación necesitas el código que el profesor compartió en clase.</p>
+      <label class="campo">
+        <span>Código</span>
+        <input id="entrada-codigo" name="codigo" autocomplete="off" autocapitalize="off" spellcheck="false" required>
+      </label>
+      <div class="dialogo__botones">
+        <button value="cancelar" formnovalidate class="boton boton--secundario">Cancelar</button>
+        <button value="aceptar" class="boton">Guardar</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog id="dialogo-foto" class="dialogo dialogo--foto">
+    <form method="dialog">
+      <img id="foto-grande" alt="Foto de tu solución">
+      <div class="dialogo__botones"><button class="boton">Cerrar</button></div>
+    </form>
+  </dialog>
+</body>
+</html>
