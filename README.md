@@ -1,15 +1,21 @@
 # Repaso TC1037: funciones, math y condicionales
 
-App web para practicar el examen escrito. Tiene dos partes:
+App web para practicar el examen escrito, pensada para el celular: una pantalla a la vez y un botón para avanzar. Se abre en <https://mparra37.github.io/App-Repaso/>; el `index.html` de la raíz redirige a `docs/`.
 
-- **Calentamiento** (18 preguntas): opción múltiple y «¿qué imprime?», como las secciones I y II del examen. Se califica al instante, da una pista cuando la respuesta es incorrecta y, después de 3 intentos, permite ver la explicación.
-- **Problemas** (12, en tres niveles: básicos, intermedios y tipo examen). El alumno resuelve en papel, toma una foto, la IA transcribe el código, el alumno corrige solo los errores de lectura y la app:
-  1. ejecuta el código **en el navegador** (Python con Pyodide) contra pruebas automáticas;
-  2. pide a la IA una retroalimentación que **no da la respuesta**, basada en los resultados de esas pruebas.
+- **Calentamiento** (15 preguntas de opción múltiple por tema: input, tipos, operadores, math, funciones, and/or/not, if). Una sola oportunidad por pregunta; si acierta, gana 1 ★, y siempre ve la explicación.
+- **Ejercicios** (28, en 5 niveles que valen más conforme suben):
 
-  Cada problema tiene 3 pistas escalonadas, escritas a mano, que no gastan API.
+  | Nivel | Tema | ★ por ejercicio |
+  |---|---|---|
+  | 1 | Entrada y salida | 1 |
+  | 2 | Operaciones y math | 2 |
+  | 3 | Funciones | 3 |
+  | 4 | Condicionales | 4 |
+  | 5 | Retos | 5 |
 
-Quien decide si el programa es correcto son las pruebas, no la IA. La IA solo lee la foto y redacta la retroalimentación.
+  El alumno resuelve en papel, toma una foto, la IA transcribe el código, el alumno corrige solo los errores de lectura y la app lo ejecuta **en el navegador** (Python con Pyodide) contra casos de prueba. Si falla, la IA da comentarios **sin dar la respuesta**. Cada ejercicio tiene 2 pistas; cada pista usada le resta 1 ★ a ese ejercicio (mínimo 1).
+
+Quien decide si el programa es correcto son las pruebas, no la IA. La IA solo lee la foto y redacta los comentarios. Los puntos se guardan en el navegador de cada alumno; en la pantalla de inicio está «Reiniciar puntos» para empezar un juego desde cero.
 
 ## Estructura
 
@@ -165,26 +171,27 @@ Si algo falla, ejecuta `npx wrangler tail` en la carpeta `worker` mientras repit
 
 ## Cómo usarlo en la sesión (sugerencia)
 
-1. **10 min, calentamiento** individual desde el celular.
-2. **30–40 min, problemas básicos e intermedios** en papel, en parejas o solos. Pide que tomen la foto **sin nombre ni matrícula** en la hoja: la imagen se envía a la API de Claude.
-3. **15–20 min, un problema tipo examen** con tiempo y sin pistas.
-4. Cierre: comenta los errores que más viste (`print` en lugar de `return`, `floor` en lugar de `ceil`, olvidar `main()`, `=` en lugar de `==`).
+1. **Arranque:** que todos pulsen «Reiniciar puntos» en la pantalla de inicio (si ya la habían abierto).
+2. **10 min, calentamiento** individual desde el celular.
+3. **Juego, 30–40 min:** resuelven ejercicios en papel en el orden que quieran; gana quien tenga más ★ al terminar el tiempo (el marcador está en la pantalla de inicio y arriba a la derecha). Pide que tomen la foto **sin nombre ni matrícula** en la hoja: la imagen se envía a la API de Claude.
+4. Cierre: comenta los errores que más viste (`print` en lugar de `return`, `floor` en lugar de `ceil`, olvidar convertir el `input()`, `=` en lugar de `==`).
 
 Cosas que conviene decirles:
 
-- En el paso «Revisa la lectura» solo se corrige lo que la IA leyó mal. Si corrigen su lógica ahí, se pierde el ensayo del examen.
+- Después de la foto, solo se corrige lo que la IA leyó mal. Si corrigen su lógica ahí, se pierde el ensayo del examen.
 - Las líneas que la IA no pudo leer bien terminan en `# (?)`.
 - Letra clara, una instrucción por renglón y la sangría bien marcada mejoran mucho la lectura.
 
 ## Agregar o cambiar problemas
 
-Todo está en `docs/data/problemas.json`. Cada problema tiene:
+Todo está en `docs/data/problemas.json`: `niveles` (nombre y ★), `quiz` (pregunta, `codigo` opcional, 4 `opciones`, índice `correcta` y `explicacion`) y `ejercicios`. Cada ejercicio tiene:
 
-- `descripcion`, `requisitos`, `entrada`, `salida` y `ejemplo` (`entradas` que se capturan y `texto` que se muestra);
+- `nivel`, `titulo`, `descripcion` (una o dos oraciones), `entrada`, `salida` (texto, o lista para mostrarla en renglones), `usa` (opcional, lo que debe usar) y `ejemplo` (`entradas` y `salida`, que se muestran como `>>> 10`);
 - `pruebas`:
-  - `{"tipo": "funcion", "funcion": "multa", "args": [75, 60], "esperado": 500}` llama a la función y compara lo que regresa (números con tolerancia `tol`, 0.01 por defecto; textos sin importar mayúsculas ni acentos; booleanos exactos);
-  - `{"tipo": "programa", "entradas": ["0"], "contiene": ["Error"]}` corre el programa completo con esas entradas y busca números o textos en lo que imprime;
-- `pistas`: tres, de menos a más ayuda;
+  - `{"tipo": "programa", "entradas": ["10", "4"], "salida": ["20.0"]}` corre el programa con esas entradas y compara renglón por renglón lo que imprime (números con tolerancia 0.01; textos sin importar mayúsculas, acentos ni signos de puntuación). Los mensajes de `input("...")` no cuentan;
+  - `{"tipo": "programa", "entradas": ["0"], "contiene": ["Error"]}` solo busca ese texto o número en lo que imprime;
+  - `{"tipo": "funcion", "funcion": "cuadrado", "args": [3], "esperado": 9}` llama a la función y compara lo que regresa;
+- `pistas`: dos, de menos a más ayuda;
 - `prohibido` (opcional): texto que no debe aparecer en el código, como `max(`.
 
 Después de editar, agrega la solución en `soluciones_profesor/soluciones.py` y verifica que las pruebas y el ejemplo coincidan:

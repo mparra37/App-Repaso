@@ -2,11 +2,16 @@ import { preparar, evaluar } from "./ejecutor.js";
 
 const CONFIG = window.REPASO_CONFIG || {};
 const WORKER_URL = (CONFIG.workerUrl || "").replace(/\/+$/, "");
-const CLAVE = "repaso-tc1037";
+const CON_IA = Boolean(WORKER_URL);
+const CLAVE = "repaso-tc1037-v2";
+
 const vista = document.getElementById("vista");
+const marcadorPuntos = document.getElementById("puntos");
+const avisoPuntos = document.getElementById("aviso-puntos");
 
 let datos = null;
-const intentos = {};
+const pasos = {};
+const resultados = {};
 
 // ---------- utilidades ----------
 
@@ -19,15 +24,20 @@ function el(etiqueta, atributos = {}, ...hijos) {
     else if (valor === true) nodo.setAttribute(nombre, "");
     else nodo.setAttribute(nombre, valor);
   }
-  for (const hijo of hijos.flat()) {
-    if (hijo === null || hijo === undefined || hijo === false) continue;
-    nodo.append(hijo instanceof Node ? hijo : document.createTextNode(String(hijo)));
-  }
+  agregar(nodo, hijos);
   return nodo;
 }
 
+function agregar(nodo, hijos) {
+  for (const hijo of hijos.flat(Infinity)) {
+    if (hijo === null || hijo === undefined || hijo === false) continue;
+    nodo.append(hijo instanceof Node ? hijo : document.createTextNode(String(hijo)));
+  }
+}
+
 function reemplazar(nodo, ...hijos) {
-  nodo.replaceChildren(...hijos.flat().filter((hijo) => hijo !== null && hijo !== undefined && hijo !== false));
+  nodo.replaceChildren();
+  agregar(nodo, hijos);
 }
 
 const almacen = {
@@ -55,47 +65,74 @@ const almacen = {
   },
 };
 
-function progreso() {
-  return almacen.leer("progreso", {});
+// ---------- progreso y puntos ----------
+
+const estado = Object.assign({ quiz: {}, ej: {}, pistas: {} }, almacen.leer("estado", {}));
+
+function guardarEstado() {
+  almacen.guardar("estado", estado);
+  pintarPuntos();
 }
 
-function marcarResuelto(id) {
-  const actual = progreso();
-  if (actual[id]) return;
-  actual[id] = true;
-  almacen.guardar("progreso", actual);
-  pintarProgresoGlobal();
+function nivelDe(ejercicio) {
+  return datos.niveles.find((n) => n.id === ejercicio.nivel);
 }
 
-function clienteId() {
-  let id = almacen.leer("cliente", null);
-  if (!id) {
-    id = crypto.randomUUID ? crypto.randomUUID() : String(Math.random()).slice(2);
-    almacen.guardar("cliente", id);
-  }
-  return id;
+function valorActual(ejercicio) {
+  return Math.max(1, nivelDe(ejercicio).puntos - (estado.pistas[ejercicio.id] || 0));
 }
 
-function pintarProgresoGlobal() {
-  if (!datos) return;
-  const hecho = progreso();
-  const total = datos.calentamiento.length + datos.problemas.length;
-  const resueltos = [...datos.calentamiento, ...datos.problemas].filter((p) => hecho[p.id]).length;
-  document.getElementById("progreso-global").textContent = `${resueltos} / ${total} resueltos`;
+function aciertosQuiz() {
+  return datos.quiz.filter((q) => estado.quiz[q.id] === q.correcta).length;
 }
 
-function normalizaSalida(texto) {
-  return texto
-    .replace(/\r/g, "")
-    .split("\n")
-    .map((linea) => linea.trim().replace(/\s+/g, " "))
-    .filter((linea, i, lineas) => linea !== "" || lineas.slice(i).some((l) => l.trim() !== ""))
-    .join("\n")
-    .trim();
+function ejerciciosResueltos() {
+  return datos.ejercicios.filter((e) => estado.ej[e.id] !== undefined).length;
 }
 
-function bloqueCodigo(codigo) {
-  return el("pre", { class: "codigo" }, el("code", {}, codigo));
+function puntosTotales() {
+  return aciertosQuiz() + Object.values(estado.ej).reduce((suma, p) => suma + p, 0);
+}
+
+function pintarPuntos() {
+  if (datos) marcadorPuntos.textContent = `★ ${puntosTotales()}`;
+}
+
+function celebrar(puntos) {
+  avisoPuntos.textContent = `+${puntos} ★`;
+  avisoPuntos.classList.add("visible");
+  setTimeout(() => avisoPuntos.classList.remove("visible"), 1600);
+}
+
+function siguientePendiente() {
+  const pregunta = datos.quiz.findIndex((q) => estado.quiz[q.id] === undefined);
+  if (pregunta >= 0) return `#/quiz/${pregunta + 1}`;
+  const ejercicio = datos.ejercicios.find((e) => estado.ej[e.id] === undefined);
+  return ejercicio ? `#/ej/${ejercicio.id}` : "#/";
+}
+
+function ir(ruta) {
+  if (location.hash === ruta) mostrar();
+  else location.hash = ruta;
+}
+
+// ---------- piezas comunes ----------
+
+function barraAcciones(...botones) {
+  return el("div", { class: "acciones" }, el("div", { class: "acciones__contenido" }, botones));
+}
+
+function boton(texto, alClic, clase = "") {
+  return el("button", { type: "button", class: `boton ${clase}`.trim(), onclick: alClic }, texto);
+}
+
+function consolaEjemplo(ejemplo) {
+  return el(
+    "pre",
+    { class: "codigo", "aria-label": "Ejemplo de ejecución" },
+    ejemplo.entradas.map((entrada) => [el("span", { class: "prompt" }, ">>> "), `${entrada}\n`]),
+    ejemplo.salida.join("\n"),
+  );
 }
 
 // ---------- servidor (Cloudflare Worker) ----------
@@ -122,9 +159,18 @@ function pedirCodigoClase() {
   });
 }
 
+function clienteId() {
+  let id = almacen.leer("cliente", null);
+  if (!id) {
+    id = crypto.randomUUID ? crypto.randomUUID() : String(Math.random()).slice(2);
+    almacen.guardar("cliente", id);
+  }
+  return id;
+}
+
 async function llamarServidor(ruta, cuerpo) {
-  let codigoClase = almacen.leer("codigo-clase", null) || (await pedirCodigoClase());
-  if (!codigoClase) throw new Error("Necesitas el código de clase para usar esta función.");
+  const codigoClase = almacen.leer("codigo-clase", null) || (await pedirCodigoClase());
+  if (!codigoClase) throw new Error("Necesitas el código de clase.");
   let respuesta;
   try {
     respuesta = await fetch(`${WORKER_URL}${ruta}`, {
@@ -133,14 +179,14 @@ async function llamarServidor(ruta, cuerpo) {
       body: JSON.stringify({ ...cuerpo, codigoClase, clienteId: clienteId() }),
     });
   } catch {
-    throw new Error("No hay conexión con el servidor. Revisa tu internet e inténtalo de nuevo.");
+    throw new Error("Sin conexión. Revisa tu internet.");
   }
   const datosRespuesta = await respuesta.json().catch(() => ({}));
   if (respuesta.status === 401) {
     almacen.borrar("codigo-clase");
-    throw new Error("El código de clase no es correcto. Vuelve a intentarlo para escribirlo otra vez.");
+    throw new Error("El código de clase no es correcto. Inténtalo otra vez.");
   }
-  if (!respuesta.ok) throw new Error(datosRespuesta.error || "El servidor no pudo responder. Inténtalo en un momento.");
+  if (!respuesta.ok) throw new Error(datosRespuesta.error || "El servidor no respondió. Inténtalo otra vez.");
   return datosRespuesta;
 }
 
@@ -153,8 +199,7 @@ async function prepararImagen(archivo) {
       imagen.onerror = rechazar;
       imagen.src = url;
     });
-    const lado = 1600;
-    const escala = Math.min(1, lado / Math.max(imagen.naturalWidth, imagen.naturalHeight));
+    const escala = Math.min(1, 1600 / Math.max(imagen.naturalWidth, imagen.naturalHeight));
     const lienzo = document.createElement("canvas");
     lienzo.width = Math.round(imagen.naturalWidth * escala);
     lienzo.height = Math.round(imagen.naturalHeight * escala);
@@ -168,7 +213,7 @@ async function prepararImagen(archivo) {
   }
 }
 
-// ---------- editor de código ----------
+// ---------- editor ----------
 
 function crearEditor(valorInicial, alCambiar) {
   const numeros = el("pre", { class: "editor__numeros", "aria-hidden": "true" });
@@ -177,9 +222,10 @@ function crearEditor(valorInicial, alCambiar) {
     spellcheck: "false",
     autocapitalize: "off",
     autocomplete: "off",
+    autocorrect: "off",
     wrap: "off",
-    "aria-label": "Tu código en Python",
-    placeholder: "Aquí aparecerá tu código.\nTambién puedes escribirlo.",
+    "aria-label": "Tu código",
+    placeholder: "Tu código aparecerá aquí",
   });
   area.value = valorInicial;
   let lineaError = null;
@@ -187,9 +233,7 @@ function crearEditor(valorInicial, alCambiar) {
   function pintarNumeros() {
     const total = Math.max(1, area.value.split("\n").length);
     numeros.replaceChildren(
-      ...Array.from({ length: total }, (_, i) =>
-        el("span", { class: i + 1 === lineaError ? "error" : null }, `${i + 1}\n`),
-      ),
+      ...Array.from({ length: total }, (_, i) => el("span", { class: i + 1 === lineaError ? "error" : null }, `${i + 1}\n`)),
     );
   }
 
@@ -238,455 +282,452 @@ function crearEditor(valorInicial, alCambiar) {
   };
 }
 
-// ---------- explicaciones de errores ----------
+// ---------- errores en español ----------
 
 const ERRORES_SINTAXIS = [
-  [/expected ':'/, "falta poner dos puntos ( : ) al final de la línea."],
-  [/was never closed/, "un paréntesis, corchete o llave se abrió y nunca se cerró."],
+  [/expected ':'/, "falta poner dos puntos ( : ) al final."],
+  [/was never closed/, "un paréntesis se abrió y nunca se cerró."],
   [/unterminated string/, "un texto entre comillas no se cerró."],
-  [/unmatched/, "hay un paréntesis de cierre que no corresponde a ninguno de apertura."],
-  [/expected an indented block/, "después de una línea que termina en : la siguiente debe llevar sangría (4 espacios)."],
+  [/unmatched/, "sobra un paréntesis de cierre."],
+  [/expected an indented block/, "después de los dos puntos, la siguiente línea debe llevar sangría."],
   [/unexpected indent/, "esta línea tiene sangría de más."],
-  [/unindent does not match/, "la sangría de esta línea no coincide con la de las líneas anteriores."],
-  [/cannot assign to|Maybe you meant '=='/, "parece que usaste = (asignar) donde debía ir == (comparar)."],
-  [/invalid syntax/, "Python no entiende esta línea. Revisa los dos puntos, los paréntesis, las comillas y si usaste = en lugar de ==."],
+  [/unindent does not match/, "la sangría no coincide con las líneas de arriba."],
+  [/cannot assign to|Maybe you meant '=='/, "para comparar se usa == (con = se asigna)."],
+  [/invalid syntax/, "Python no entiende esta línea: revisa dos puntos, paréntesis, comillas y = contra ==."],
 ];
 
 const ERRORES_EJECUCION = {
-  NameError: "usas un nombre que Python no conoce. Revisa cómo lo escribiste, si lo declaraste antes de usarlo o si te falta import math.",
-  TypeError: "una operación recibió un tipo de dato que no esperaba: ¿olvidaste convertir el input() con int() o float()? ¿Llamaste a una función con más o menos argumentos?",
-  ValueError: "un valor no se pudo convertir: por ejemplo int() de un texto con decimales.",
-  ZeroDivisionError: "se intentó dividir entre cero.",
-  AttributeError: "usas una función que no existe en ese módulo; revisa el nombre (por ejemplo math.sqrt).",
+  NameError: "usas un nombre que Python no conoce: revisa cómo lo escribiste o si falta import math.",
+  TypeError: "se mezclaron tipos de datos: ¿convertiste el input() con int() o float()?",
+  ValueError: "un dato no se pudo convertir, por ejemplo int() de un número con decimales.",
+  ZeroDivisionError: "se dividió entre cero.",
+  AttributeError: "esa función no existe en el módulo; revisa el nombre (por ejemplo math.sqrt).",
 };
 
 function explicarError(error) {
   const donde = error.linea ? `Línea ${error.linea}: ` : "";
   if (["SyntaxError", "IndentationError", "TabError"].includes(error.tipo)) {
     const regla = ERRORES_SINTAXIS.find(([patron]) => patron.test(error.mensaje));
-    return {
-      titulo: "Tu código tiene un error de sintaxis",
-      texto: donde + (regla ? regla[1] : "Python no puede leer esta parte del código."),
-      original: `${error.tipo}: ${error.mensaje}`,
-    };
+    return { titulo: "Error de sintaxis", texto: donde + (regla ? regla[1] : "Python no puede leer esta parte.") };
   }
-  return {
-    titulo: "Tu programa se detuvo con un error",
-    texto: donde + (ERRORES_EJECUCION[error.tipo] || "ocurrió un error al ejecutar el programa."),
-    original: `${error.tipo}: ${error.mensaje}`,
-  };
+  return { titulo: "El programa se detuvo", texto: donde + (ERRORES_EJECUCION[error.tipo] || `ocurrió ${error.tipo}.`) };
 }
 
-// ---------- vistas ----------
+// ---------- inicio ----------
 
 function vistaInicio() {
-  const hecho = progreso();
-  const calentamientoHecho = datos.calentamiento.filter((p) => hecho[p.id]).length;
-
-  const pasos = [
-    ["Resuelve en papel", "Escribe el programa completo a mano, como en el examen."],
-    ["Toma una foto", "Con buena luz, la hoja derecha y letra clara."],
-    ["Revisa la lectura", "Corrige solo lo que la app leyó mal, no tu lógica."],
-    ["Recibe retroalimentación", "Pruebas automáticas y comentarios sin darte la respuesta."],
-  ];
-
-  return el(
-    "div",
-    { class: "inicio" },
-    el(
-      "section",
-      { class: "portada" },
-      el("h1", {}, "Funciones, math y condicionales"),
-      el("p", { class: "portada__texto" }, "Practica como en el examen: resuelve a mano, toma una foto de tu hoja y recibe retroalimentación para corregir tú mismo. Si te atoras, pide una pista."),
-      el(
-        "ol",
-        { class: "pasos" },
-        pasos.map(([titulo, texto], i) =>
-          el("li", { class: "paso" }, el("span", { class: "paso__numero" }, i + 1), el("strong", {}, titulo), el("span", {}, texto)),
-        ),
-      ),
-    ),
-    el(
-      "a",
-      { class: "tarjeta tarjeta--enlace calentamiento-enlace", href: "#/calentamiento" },
-      el("div", {}, el("span", { class: "etiqueta" }, "Para empezar"), el("h2", {}, "Calentamiento: ¿qué imprime?"), el("p", {}, "Opción múltiple y evaluación de expresiones, como las secciones I y II del examen. Se responde en la pantalla.")),
-      el("span", { class: "contador" }, `${calentamientoHecho} / ${datos.calentamiento.length}`),
-    ),
-    datos.niveles.map((nivel) => {
-      const lista = datos.problemas.filter((p) => p.nivel === nivel.id);
-      return el(
-        "section",
-        { class: "nivel" },
-        el("div", { class: "nivel__encabezado" }, el("h2", {}, nivel.nombre), el("p", {}, nivel.descripcion)),
-        el(
-          "div",
-          { class: "rejilla" },
-          lista.map((p) =>
-            el(
-              "a",
-              { class: `tarjeta tarjeta--enlace problema-tarjeta${hecho[p.id] ? " resuelto" : ""}`, href: `#/problema/${p.id}` },
-              el("span", { class: `chip chip--${nivel.id}` }, nivel.nombre.replace(/s$/, "")),
-              el("h3", {}, p.titulo),
-              el("p", {}, p.descripcion.length > 120 ? `${p.descripcion.slice(0, 117).trimEnd()}…` : p.descripcion),
-              hecho[p.id] ? el("span", { class: "estado estado--ok" }, "✓ Resuelto") : null,
-            ),
-          ),
-        ),
-      );
+  const filas = [
+    {
+      ruta: `#/quiz/${Math.max(1, datos.quiz.findIndex((q) => estado.quiz[q.id] === undefined) + 1)}`,
+      numero: "?",
+      nombre: "Calentamiento",
+      detalle: "Opción múltiple · 1 ★ c/u",
+      hechos: datos.quiz.filter((q) => estado.quiz[q.id] !== undefined).length,
+      total: datos.quiz.length,
+    },
+    ...datos.niveles.map((nivel, i) => {
+      const lista = datos.ejercicios.filter((e) => e.nivel === nivel.id);
+      const pendiente = lista.find((e) => estado.ej[e.id] === undefined) || lista[0];
+      return {
+        ruta: `#/ej/${pendiente.id}`,
+        numero: i + 1,
+        nombre: nivel.nombre,
+        detalle: `${nivel.puntos} ★ por ejercicio`,
+        hechos: lista.filter((e) => estado.ej[e.id] !== undefined).length,
+        total: lista.length,
+      };
     }),
-  );
-}
+  ];
+  const empezado = Object.keys(estado.quiz).length + Object.keys(estado.ej).length > 0;
 
-function tarjetaPregunta(pregunta, numero) {
-  const hecho = progreso();
-  const retro = el("div", { class: "retro-breve", "aria-live": "polite" });
-  const explicacion = el("p", { class: "explicacion", hidden: true }, pregunta.explicacion);
-  const botonVer = el("button", { class: "boton boton--texto", hidden: true, type: "button" }, "Ver respuesta y explicación");
-  intentos[pregunta.id] = intentos[pregunta.id] || 0;
-  let control;
-  let leerRespuesta;
-
-  if (pregunta.tipo === "opcion") {
-    const nombre = `opcion-${pregunta.id}`;
-    control = el(
+  return [
+    el(
       "div",
-      { class: "opciones", role: "radiogroup" },
-      pregunta.opciones.map((texto, i) =>
-        el("label", { class: "opcion" }, el("input", { type: "radio", name: nombre, value: i }), el("span", { class: "opcion__letra" }, "abcd"[i] + ")"), el("code", {}, texto)),
+      { class: "encabezado" },
+      el("h1", {}, "Repaso de Python"),
+      el("p", { class: "texto-suave" }, "Resuelve en papel, toma foto y suma puntos."),
+    ),
+    el(
+      "div",
+      { class: "marcador" },
+      el("div", {}, el("strong", {}, puntosTotales()), el("span", {}, "puntos")),
+      el("div", {}, el("strong", {}, ejerciciosResueltos()), el("span", {}, `de ${datos.ejercicios.length} ejercicios`)),
+    ),
+    el(
+      "nav",
+      { class: "lista", "aria-label": "Secciones" },
+      filas.map((f) =>
+        el(
+          "a",
+          { class: `fila${f.hechos === f.total ? " completa" : ""}`, href: f.ruta },
+          el("span", { class: "fila__numero" }, f.hechos === f.total ? "✓" : f.numero),
+          el("span", { class: "fila__texto" }, el("strong", {}, f.nombre), el("span", {}, f.detalle)),
+          el("span", { class: "fila__avance" }, `${f.hechos}/${f.total}`),
+        ),
       ),
+    ),
+    empezado
+      ? el(
+          "div",
+          { class: "pie-inicio" },
+          boton(
+            "Reiniciar puntos",
+            () => {
+              if (!confirm("¿Borrar todos tus puntos y empezar de cero?")) return;
+              estado.quiz = {};
+              estado.ej = {};
+              estado.pistas = {};
+              guardarEstado();
+              mostrar();
+            },
+            "boton--enlace",
+          ),
+        )
+      : null,
+    barraAcciones(boton(empezado ? "Continuar →" : "Empezar →", () => ir(siguientePendiente()))),
+  ];
+}
+
+// ---------- calentamiento ----------
+
+function vistaQuiz(numero) {
+  const total = datos.quiz.length;
+  const pregunta = datos.quiz[numero - 1];
+  const opciones = el("div", { class: "opciones", role: "group", "aria-label": "Opciones" });
+  const explicacion = el("div", { "aria-live": "polite" });
+  const siguiente = boton(numero === total ? "Terminar →" : "Siguiente →", () => ir(numero === total ? "#/quiz/fin" : `#/quiz/${numero + 1}`));
+
+  function pintar() {
+    const elegida = estado.quiz[pregunta.id];
+    const respondida = elegida !== undefined;
+    reemplazar(
+      opciones,
+      pregunta.opciones.map((texto, i) => {
+        let clase = "opcion";
+        if (respondida && i === pregunta.correcta) clase += " correcta";
+        else if (respondida && i === elegida) clase += " incorrecta";
+        else if (respondida) clase += " apagada";
+        return el(
+          "button",
+          { type: "button", class: clase, disabled: respondida, onclick: () => responder(i) },
+          el("span", { class: "opcion__letra" }, "ABCD"[i]),
+          el("span", {}, texto),
+        );
+      }),
     );
-    leerRespuesta = () => {
-      const marcada = control.querySelector("input:checked");
-      return marcada ? Number(marcada.value) : null;
-    };
-  } else {
-    const area = el("textarea", { class: "respuesta", rows: pregunta.respuesta.includes("\n") ? 2 : 1, spellcheck: "false", autocapitalize: "off", placeholder: "Escribe exactamente lo que se muestra en pantalla" });
-    control = area;
-    leerRespuesta = () => area.value;
+    if (respondida) {
+      const acerto = elegida === pregunta.correcta;
+      reemplazar(
+        explicacion,
+        el("div", { class: `explicacion ${acerto ? "ok" : "mal"}` }, el("strong", {}, acerto ? "¡Correcto! +1 ★" : "No es esa"), pregunta.explicacion),
+      );
+    }
+    siguiente.disabled = !respondida;
   }
 
-  function comprobar() {
-    const respuesta = leerRespuesta();
-    if (respuesta === null || (typeof respuesta === "string" && !respuesta.trim())) {
-      retro.className = "retro-breve retro-breve--aviso";
-      retro.textContent = "Primero escribe o selecciona una respuesta.";
-      return;
-    }
-    let correcto;
-    let mensaje = "";
-    if (pregunta.tipo === "opcion") correcto = respuesta === pregunta.correcta;
-    else {
-      const dada = normalizaSalida(respuesta);
-      const esperada = normalizaSalida(pregunta.respuesta);
-      correcto = dada === esperada;
-      if (!correcto && dada.toLowerCase() === esperada.toLowerCase()) mensaje = "Casi: revisa mayúsculas y minúsculas. Python escribe True, False y None con mayúscula inicial.";
-      else if (!correcto && dada.replace(/["']/g, "") === esperada) mensaje = "Casi: print() no muestra las comillas de los textos.";
-      else if (!correcto && !Number.isNaN(Number(dada)) && Number(dada) === Number(esperada)) mensaje = "El valor es correcto, pero cuida el tipo de dato: ¿el resultado es int o float?";
-    }
-    if (correcto) {
-      retro.className = "retro-breve retro-breve--ok";
-      retro.textContent = "¡Correcto!";
-      explicacion.hidden = false;
-      botonVer.hidden = true;
-      marcarResuelto(pregunta.id);
-      tarjeta.classList.add("resuelto");
-    } else {
-      intentos[pregunta.id] += 1;
-      retro.className = "retro-breve retro-breve--error";
-      retro.replaceChildren(el("strong", {}, "Todavía no. "), mensaje || `Pista: ${pregunta.pista}`);
-      if (intentos[pregunta.id] >= 3) botonVer.hidden = false;
-    }
+  function responder(indice) {
+    if (estado.quiz[pregunta.id] !== undefined) return;
+    estado.quiz[pregunta.id] = indice;
+    guardarEstado();
+    if (indice === pregunta.correcta) celebrar(1);
+    pintar();
+    explicacion.scrollIntoView({ behavior: "smooth", block: "nearest" });
   }
 
-  botonVer.addEventListener("click", () => {
-    const respuesta = pregunta.tipo === "opcion" ? `${"abcd"[pregunta.correcta]}) ${pregunta.opciones[pregunta.correcta]}` : pregunta.respuesta;
-    explicacion.replaceChildren(el("strong", {}, "Respuesta: "), el("code", { class: "respuesta-correcta" }, respuesta), el("br"), pregunta.explicacion);
-    explicacion.hidden = false;
-    botonVer.hidden = true;
-  });
-
-  const tarjeta = el(
-    "article",
-    { class: `tarjeta pregunta${hecho[pregunta.id] ? " resuelto" : ""}` },
-    el("div", { class: "pregunta__encabezado" }, el("span", { class: "pregunta__numero" }, numero), el("h3", {}, pregunta.pregunta)),
-    pregunta.codigo ? bloqueCodigo(pregunta.codigo) : null,
-    control,
-    el("div", { class: "pregunta__acciones" }, el("button", { class: "boton", type: "button", onclick: comprobar }, "Comprobar"), botonVer),
-    retro,
+  pintar();
+  return [
+    el(
+      "div",
+      { class: "encabezado" },
+      el("div", { class: "encabezado__fila" }, el("span", { class: "etiqueta" }, `Calentamiento · ${numero} de ${total}`), el("span", { class: "chip" }, pregunta.tema)),
+      el("div", { class: "progreso" }, el("span", { style: `width:${(numero / total) * 100}%` })),
+    ),
+    el("h2", {}, pregunta.pregunta),
+    pregunta.codigo ? el("pre", { class: "codigo" }, pregunta.codigo) : null,
+    opciones,
     explicacion,
-  );
-  return tarjeta;
+    barraAcciones(boton("←", () => ir(numero > 1 ? `#/quiz/${numero - 1}` : "#/"), "boton--claro boton--icono"), siguiente),
+  ];
 }
 
-function vistaCalentamiento() {
-  return el(
+function vistaQuizFin() {
+  const aciertos = aciertosQuiz();
+  const primero = datos.ejercicios.find((e) => estado.ej[e.id] === undefined) || datos.ejercicios[0];
+  return [
+    el(
+      "div",
+      { class: "resultado ok" },
+      el("div", { class: "resultado__icono" }, "★"),
+      el("h1", {}, `${aciertos} de ${datos.quiz.length}`),
+      el("p", { class: "texto-suave" }, "Calentamiento terminado. Ahora a programar en papel."),
+    ),
+    barraAcciones(boton("Ir a los ejercicios →", () => ir(`#/ej/${primero.id}`))),
+  ];
+}
+
+// ---------- ejercicio ----------
+
+function vistaEjercicio(ejercicio) {
+  const paso = pasos[ejercicio.id] || "leer";
+  const nivel = nivelDe(ejercicio);
+  const delNivel = datos.ejercicios.filter((e) => e.nivel === nivel.id);
+  const posicion = delNivel.indexOf(ejercicio) + 1;
+  const indice = datos.ejercicios.indexOf(ejercicio);
+  const anterior = datos.ejercicios[indice - 1];
+  const posterior = datos.ejercicios[indice + 1];
+  const resuelto = estado.ej[ejercicio.id] !== undefined;
+  preparar().catch(() => {});
+
+  const chipValor = resuelto
+    ? el("span", { class: "chip chip--ok" }, `✓ +${estado.ej[ejercicio.id]} ★`)
+    : el("span", { class: "chip" }, `${valorActual(ejercicio)} ★`);
+  const encabezado = el(
     "div",
-    { class: "pagina" },
-    el("a", { class: "volver", href: "#/" }, "← Todos los ejercicios"),
-    el("h1", {}, "Calentamiento"),
-    el("p", { class: "subtitulo" }, "Resuélvelo primero en tu cuaderno, sin ejecutar nada. Escribe el valor exacto que imprime Python y cuida el tipo de dato: 4 no es lo mismo que 4.0."),
-    el("div", { class: "lista-preguntas" }, datos.calentamiento.map((p, i) => tarjetaPregunta(p, i + 1))),
+    { class: "encabezado" },
+    el("div", { class: "encabezado__fila" }, el("span", { class: "etiqueta" }, `${nivel.nombre} · ${posicion} de ${delNivel.length}`), chipValor),
+    el("div", { class: "progreso" }, el("span", { style: `width:${(posicion / delNivel.length) * 100}%` })),
   );
+
+  function cambiarPaso(nuevo) {
+    pasos[ejercicio.id] = nuevo;
+    mostrar();
+  }
+
+  if (paso === "codigo") return [encabezado, ...pasoCodigo(ejercicio, cambiarPaso)];
+  if (paso === "resultado" && resultados[ejercicio.id]) return [encabezado, ...pasoResultado(ejercicio, cambiarPaso, posterior)];
+
+  // --- paso 1: leer el problema ---
+  const listaPistas = el("div", { class: "pistas" });
+  function pintarPistas() {
+    const vistas = estado.pistas[ejercicio.id] || 0;
+    const quedan = ejercicio.pistas.length - vistas;
+    const cuesta = !resuelto && valorActual(ejercicio) > 1;
+    reemplazar(
+      listaPistas,
+      ejercicio.pistas.slice(0, vistas).map((texto) => el("div", { class: "pista" }, texto)),
+      quedan > 0
+        ? boton(
+            `💡 ${vistas ? "Otra pista" : "Pista"}${cuesta ? " (−1 ★)" : ""}`,
+            () => {
+              estado.pistas[ejercicio.id] = (estado.pistas[ejercicio.id] || 0) + 1;
+              guardarEstado();
+              if (!resuelto) chipValor.textContent = `${valorActual(ejercicio)} ★`;
+              pintarPistas();
+            },
+            "boton--enlace",
+          )
+        : null,
+    );
+  }
+  pintarPistas();
+
+  return [
+    encabezado,
+    el("h1", {}, ejercicio.titulo),
+    el("p", {}, ejercicio.descripcion),
+    el(
+      "div",
+      { class: "datos" },
+      el("div", { class: "dato" }, el("span", {}, "Entrada"), el("span", {}, ejercicio.entrada)),
+      el(
+        "div",
+        { class: "dato" },
+        el("span", {}, "Salida"),
+        Array.isArray(ejercicio.salida)
+          ? el("ul", { class: "lista-salida" }, ejercicio.salida.map((linea) => el("li", {}, linea)))
+          : el("span", {}, ejercicio.salida),
+      ),
+      ejercicio.usa ? el("div", { class: "dato usa" }, el("span", {}, "Usa"), el("span", {}, el("code", {}, ejercicio.usa))) : null,
+      el("div", { class: "dato" }, el("span", {}, "Ejemplo"), consolaEjemplo(ejercicio.ejemplo)),
+    ),
+    listaPistas,
+    barraAcciones(
+      boton("←", () => ir(anterior ? `#/ej/${anterior.id}` : "#/"), "boton--claro boton--icono"),
+      boton("Ya lo resolví en papel", () => cambiarPaso("codigo")),
+      boton("→", () => ir(posterior ? `#/ej/${posterior.id}` : "#/"), "boton--claro boton--icono"),
+    ),
+  ];
 }
 
-function vistaProblema(problema) {
-  const nivel = datos.niveles.find((n) => n.id === problema.nivel);
-  const claveCodigo = `codigo:${problema.id}`;
-  const funciones = [...new Set(problema.pruebas.filter((p) => p.tipo === "funcion").map((p) => p.funcion))];
-  const conIA = Boolean(WORKER_URL);
-
-  // --- enunciado ---
-  const enunciado = el(
-    "section",
-    { class: "tarjeta enunciado" },
-    el("h2", { class: "seccion-titulo" }, "Descripción"),
-    el("p", {}, problema.descripcion),
-    el("h3", {}, "Requisitos"),
-    el("ul", {}, problema.requisitos.map((r) => el("li", {}, r))),
-    el("div", { class: "entrada-salida" }, el("div", {}, el("h3", {}, "Entrada"), el("p", {}, problema.entrada)), el("div", {}, el("h3", {}, "Salida"), el("p", {}, problema.salida))),
-    el("h3", {}, "Ejemplo de ejecución"),
-    bloqueCodigo(problema.ejemplo.texto),
-  );
-
-  // --- pistas ---
-  const pistasVistas = almacen.leer(`pistas:${problema.id}`, 0);
-  const listaPistas = el("ol", { class: "pistas__lista" });
-  const botonPista = el("button", { class: "boton boton--secundario", type: "button" });
-  let mostradas = 0;
-  function mostrarPista() {
-    if (mostradas >= problema.pistas.length) return;
-    listaPistas.append(el("li", {}, problema.pistas[mostradas]));
-    mostradas += 1;
-    almacen.guardar(`pistas:${problema.id}`, mostradas);
-    actualizarBotonPista();
-  }
-  function actualizarBotonPista() {
-    botonPista.hidden = mostradas >= problema.pistas.length;
-    botonPista.textContent = mostradas === 0 ? "Necesito una pista" : `Otra pista (${mostradas + 1} de ${problema.pistas.length})`;
-  }
-  botonPista.addEventListener("click", mostrarPista);
-  for (let i = 0; i < pistasVistas; i++) mostrarPista();
-  actualizarBotonPista();
-  const pistas = el(
-    "section",
-    { class: "tarjeta pistas" },
-    el("h2", { class: "seccion-titulo" }, "Pistas"),
-    el("p", { class: "nota" }, "Intenta primero sin ayuda. Cada pista te acerca un poco más, sin darte la respuesta."),
-    listaPistas,
-    botonPista,
-  );
-
-  // --- solución ---
+function pasoCodigo(ejercicio, cambiarPaso) {
+  const claveCodigo = `codigo:${ejercicio.id}`;
   const editor = crearEditor(almacen.leer(claveCodigo, ""), (texto) => almacen.guardar(claveCodigo, texto));
-  const estadoPython = el("span", { class: "estado-python" }, "Preparando Python…");
-  preparar().then(
+  const contenedorEditor = el("div", { hidden: !editor.valor.trim() }, editor.nodo);
+  const estadoFoto = el("p", { class: "estado", "aria-live": "polite" });
+  const avisoLectura = el("div", { class: "aviso-lectura", hidden: true });
+  const funciones = [...new Set(ejercicio.pruebas.filter((p) => p.tipo === "funcion").map((p) => p.funcion))];
+  const revisar = boton("Revisar", () => revisarCodigo());
+  const escribir = boton(
+    "o escríbela aquí",
     () => {
-      estadoPython.textContent = "Python listo";
-      estadoPython.classList.add("listo");
+      contenedorEditor.hidden = false;
+      escribir.remove();
+      contenedorEditor.querySelector("textarea").focus();
     },
-    () => {
-      estadoPython.textContent = "No se pudo cargar Python; revisa tu conexión y recarga la página.";
-      estadoPython.classList.add("falla");
-    },
+    "boton--enlace",
   );
 
-  const resultados = el("div", { class: "resultados", "aria-live": "polite" });
-  const avisoLectura = el("div", { class: "aviso-lectura", hidden: true });
-  const miniatura = el("img", { class: "miniatura", alt: "Foto de tu solución", hidden: true });
-  const estadoFoto = el("p", { class: "estado-foto", "aria-live": "polite" });
-  let imagenLista = null;
-
-  const entradaFoto = el("input", { type: "file", accept: "image/*", class: "oculto", id: `foto-${problema.id}` });
-  const botonLeer = el("button", { class: "boton", type: "button", disabled: true }, "Leer mi código");
+  const entradaFoto = el("input", { type: "file", accept: "image/*", class: "oculto", id: `foto-${ejercicio.id}` });
+  const vistaPrevia = el("img", { alt: "Tu foto", hidden: true });
+  const tarjetaFoto = el(
+    "label",
+    { class: "foto", for: entradaFoto.id },
+    el("span", { class: "foto__icono", "aria-hidden": "true" }, "📷"),
+    el("strong", {}, "Tomar foto de tu hoja"),
+    el("span", { class: "texto-suave" }, "De frente, con buena luz"),
+    vistaPrevia,
+  );
 
   entradaFoto.addEventListener("change", async () => {
     const archivo = entradaFoto.files[0];
+    entradaFoto.value = "";
     if (!archivo) return;
-    estadoFoto.textContent = "Preparando la foto…";
+    revisar.disabled = true;
+    estadoFoto.textContent = "Leyendo tu letra…";
     try {
-      imagenLista = await prepararImagen(archivo);
-      miniatura.src = imagenLista;
-      miniatura.hidden = false;
-      botonLeer.disabled = false;
-      estadoFoto.textContent = "Foto lista. Ahora pulsa «Leer mi código».";
-    } catch {
-      imagenLista = null;
-      botonLeer.disabled = true;
-      estadoFoto.textContent = "No pude abrir esa imagen. Intenta con otra foto (JPG o PNG).";
-    }
-  });
-
-  miniatura.addEventListener("click", () => {
-    document.getElementById("foto-grande").src = miniatura.src;
-    document.getElementById("dialogo-foto").showModal();
-  });
-
-  botonLeer.addEventListener("click", async () => {
-    if (!imagenLista) return;
-    if (editor.valor.trim() && !confirm("Se reemplazará el código que está en el editor. ¿Continuar?")) return;
-    botonLeer.disabled = true;
-    estadoFoto.textContent = "Leyendo tu letra… (tarda unos segundos)";
-    try {
-      const lectura = await llamarServidor("/transcribir", { imagen: imagenLista, funciones });
+      const imagen = await prepararImagen(archivo);
+      vistaPrevia.src = imagen;
+      vistaPrevia.hidden = false;
+      const lectura = await llamarServidor("/transcribir", { imagen, funciones });
       editor.valor = lectura.codigo || "";
-      avisoLectura.hidden = false;
-      avisoLectura.className = `aviso-lectura aviso-lectura--${lectura.legibilidad || "buena"}`;
+      contenedorEditor.hidden = false;
+      escribir.remove();
       const textos = {
-        buena: "La foto se leyó bien.",
-        regular: "Algunas partes costó leerlas; revisa con cuidado.",
-        mala: "La foto fue difícil de leer. Si hay muchos errores, toma otra con mejor luz y letra más clara.",
+        buena: "Revisa que diga lo mismo que tu hoja. Corrige solo lo que se leyó mal.",
+        regular: "Algunas partes costó leerlas. Compara con tu hoja y corrige solo lo que se leyó mal.",
+        mala: "Fue difícil leer la foto. Si hay muchos errores, toma otra con mejor luz.",
       };
-      reemplazar(
-        avisoLectura,
-        el("strong", {}, textos[lectura.legibilidad] || textos.buena),
-        " Compara el editor con tu hoja y corrige solo lo que se leyó mal (las líneas marcadas con ",
-        el("code", { class: "sin-corte" }, "# (?)"),
-        " son dudosas). No corrijas tu lógica aquí: para eso está la revisión.",
-        lectura.nota ? el("span", { class: "aviso-lectura__nota" }, ` ${lectura.nota}`) : null,
-      );
+      avisoLectura.className = `aviso-lectura ${lectura.legibilidad || "buena"}`;
+      avisoLectura.textContent = textos[lectura.legibilidad] || textos.buena;
+      avisoLectura.hidden = false;
       estadoFoto.textContent = "";
     } catch (error) {
       estadoFoto.textContent = error.message;
     } finally {
-      botonLeer.disabled = false;
+      revisar.disabled = false;
     }
   });
 
-  const botonRevisar = el("button", { class: "boton boton--principal", type: "button" }, "Revisar mi solución");
-  botonRevisar.addEventListener("click", () => revisar());
-
-  async function revisar() {
+  async function revisarCodigo() {
     const codigo = editor.valor;
     if (!codigo.trim()) {
-      resultados.replaceChildren(el("p", { class: "retro-breve retro-breve--aviso" }, "El editor está vacío: lee tu foto o escribe tu código primero."));
+      estadoFoto.textContent = CON_IA ? "Primero toma la foto de tu hoja." : "Primero escribe tu código.";
       return;
     }
-    botonRevisar.disabled = true;
-    resultados.replaceChildren(el("p", { class: "cargando" }, "Probando tu programa…"));
-    let reporte;
+    revisar.disabled = true;
+    revisar.textContent = "Revisando…";
     try {
-      reporte = await evaluar(codigo, problema);
+      const reporte = await evaluar(codigo, ejercicio);
+      const pasa = !reporte.error && reporte.pruebas.length > 0 && reporte.pruebas.every((p) => p.ok) && reporte.avisos.length === 0;
+      let ganados = 0;
+      if (pasa && estado.ej[ejercicio.id] === undefined) {
+        ganados = valorActual(ejercicio);
+        estado.ej[ejercicio.id] = ganados;
+        guardarEstado();
+        celebrar(ganados);
+      }
+      if (reporte.error?.linea) editor.marcarLinea(reporte.error.linea);
+      resultados[ejercicio.id] = { reporte, codigo, pasa, ganados };
+      cambiarPaso("resultado");
     } catch (error) {
-      const mensaje =
-        error.message === "TIEMPO"
-          ? "Tu programa tardó demasiado y se detuvo. Revisa que no se quede esperando algo."
-          : "No se pudo ejecutar Python. Revisa tu conexión y recarga la página.";
-      resultados.replaceChildren(el("p", { class: "retro-breve retro-breve--error" }, mensaje));
-      botonRevisar.disabled = false;
-      return;
+      estadoFoto.textContent =
+        error.message === "TIEMPO" ? "Tu programa tardó demasiado y se detuvo." : "No se pudo cargar Python. Revisa tu internet y recarga.";
+      revisar.disabled = false;
+      revisar.textContent = "Revisar";
     }
-    pintarReporte(reporte, codigo);
-    botonRevisar.disabled = false;
   }
 
-  function pintarReporte(reporte, codigo) {
-    const pruebas = reporte.pruebas;
-    const bien = pruebas.filter((p) => p.ok).length;
-    const todoBien = !reporte.error && pruebas.length > 0 && bien === pruebas.length && reporte.avisos.length === 0;
-    if (todoBien) marcarResuelto(problema.id);
+  return [
+    el("h2", {}, CON_IA ? "Sube tu solución" : "Escribe tu solución"),
+    CON_IA ? [tarjetaFoto, entradaFoto] : null,
+    estadoFoto,
+    avisoLectura,
+    contenedorEditor,
+    CON_IA && contenedorEditor.hidden ? escribir : null,
+    barraAcciones(boton("←", () => cambiarPaso("leer"), "boton--claro boton--icono"), revisar),
+  ].flat();
+}
 
-    const partes = [];
-    if (reporte.error) {
-      const info = explicarError(reporte.error);
-      if (reporte.error.linea) editor.marcarLinea(reporte.error.linea);
-      partes.push(el("div", { class: "resumen resumen--error" }, el("strong", {}, info.titulo), el("p", {}, info.texto), el("code", { class: "error-original" }, info.original)));
-    } else {
-      partes.push(
-        el(
-          "div",
-          { class: `resumen ${todoBien ? "resumen--ok" : "resumen--parcial"}` },
-          el("strong", {}, todoBien ? "¡Tu programa pasó todas las pruebas!" : `Pasaste ${bien} de ${pruebas.length} pruebas`),
-          el("p", {}, todoBien ? "Lee la retroalimentación: en el examen también cuentan la claridad y la sintaxis." : "Revisa las pruebas marcadas con ✗ y vuelve a intentarlo en tu hoja."),
-        ),
-      );
-    }
-    for (const aviso of reporte.avisos) partes.push(el("p", { class: "retro-breve retro-breve--aviso" }, aviso));
-    if (pruebas.length) {
-      partes.push(
-        el(
-          "details",
-          { class: "pruebas", open: !todoBien },
-          el("summary", {}, "Pruebas automáticas"),
-          el(
-            "ul",
-            {},
-            pruebas.map((p) =>
-              el("li", { class: p.ok ? "ok" : "falla" }, el("span", { class: "icono", "aria-label": p.ok ? "correcta" : "incorrecta" }, p.ok ? "✓" : "✗"), el("span", {}, el("code", {}, p.descripcion), p.detalle ? el("span", { class: "detalle" }, ` — ${p.detalle}`) : null)),
-            ),
-          ),
-        ),
-      );
-    }
-    if (reporte.consola) {
-      partes.push(el("h3", { class: "consola-titulo" }, "Así se ve tu programa con los datos del ejemplo"), el("pre", { class: "codigo consola" }, reporte.consola));
-    }
-    const cajaIA = el("section", { class: "retro-ia" });
-    partes.push(cajaIA);
-    resultados.replaceChildren(...partes);
+function pasoResultado(ejercicio, cambiarPaso, posterior) {
+  const { reporte, codigo, pasa, ganados } = resultados[ejercicio.id];
+  const siguiente = () => ir(posterior ? `#/ej/${posterior.id}` : "#/");
+  const cajaIA = el("section", { class: "ia", hidden: true, "aria-live": "polite" });
 
-    if (conIA) pedirRetro(cajaIA, codigo, reporte);
-    else cajaIA.remove();
-  }
-
-  async function pedirRetro(caja, codigo, reporte) {
-    caja.replaceChildren(el("h3", {}, "Retroalimentación"), el("p", { class: "cargando" }, "Analizando tu solución…"));
+  async function pedirRetro() {
+    cajaIA.hidden = false;
+    reemplazar(cajaIA, el("p", { class: "texto-suave" }, "La IA está revisando tu código…"));
     try {
       const retro = await llamarServidor("/retro", {
-        problema: { titulo: problema.titulo, descripcion: problema.descripcion, requisitos: problema.requisitos },
+        problema: { titulo: ejercicio.titulo, descripcion: ejercicio.descripcion, requisitos: [ejercicio.entrada, [ejercicio.salida].flat().join("; "), ejercicio.usa].filter(Boolean) },
         codigo,
         resultados: {
           error: reporte.error,
           avisos: reporte.avisos,
           pruebas: reporte.pruebas.map(({ descripcion, ok, detalle }) => ({ descripcion, ok, detalle })),
-          consola: reporte.consola,
         },
       });
-      const etiquetas = { correcto: "Correcto", casi: "Casi", incorrecto: "Hay que corregir" };
       reemplazar(
-        caja,
-        el("h3", {}, "Retroalimentación", retro.estado ? el("span", { class: `chip chip--estado-${retro.estado}` }, etiquetas[retro.estado] || retro.estado) : null),
+        cajaIA,
+        el("strong", {}, "Comentarios"),
         retro.resumen ? el("p", {}, retro.resumen) : null,
-        Array.isArray(retro.observaciones) && retro.observaciones.length ? el("ul", {}, retro.observaciones.map((o) => el("li", {}, o))) : null,
-        retro.pregunta_guia ? el("p", { class: "pregunta-guia" }, el("strong", {}, "Piensa: "), retro.pregunta_guia) : null,
+        retro.observaciones?.length ? el("ul", {}, retro.observaciones.map((o) => el("li", {}, o))) : null,
+        retro.pregunta_guia ? el("p", { class: "pregunta-guia" }, `🤔 ${retro.pregunta_guia}`) : null,
       );
     } catch (error) {
-      caja.replaceChildren(el("h3", {}, "Retroalimentación"), el("p", { class: "nota" }, error.message), el("button", { class: "boton boton--secundario", type: "button", onclick: () => pedirRetro(caja, codigo, reporte) }, "Reintentar"));
+      reemplazar(cajaIA, el("p", { class: "texto-suave" }, error.message), boton("Reintentar", pedirRetro, "boton--enlace"));
     }
   }
 
-  const pasoFoto = conIA
-    ? el(
+  if (pasa) {
+    const yaTenia = !ganados;
+    return [
+      el(
         "div",
-        { class: "paso-foto" },
-        el("div", { class: "paso-foto__botones" }, el("label", { class: "boton boton--secundario", for: entradaFoto.id }, "📷 Tomar o elegir foto"), botonLeer),
-        entradaFoto,
-        estadoFoto,
-        miniatura,
-      )
-    : el("p", { class: "nota" }, "La lectura de fotos no está activada. Escribe en el editor el código tal como lo hiciste en papel.");
+        { class: "resultado ok" },
+        el("div", { class: "resultado__icono" }, "✓"),
+        el("h1", {}, "¡Correcto!"),
+        el("p", { class: "resultado__puntos" }, yaTenia ? "Ya lo tenías resuelto" : `+${ganados} ★`),
+      ),
+      cajaIA,
+      CON_IA ? boton("Ver comentarios de la IA", (evento) => { evento.currentTarget.remove(); pedirRetro(); }, "boton--enlace") : null,
+      barraAcciones(boton(posterior ? "Siguiente ejercicio →" : "Volver al inicio", siguiente)),
+    ].flat();
+  }
 
-  const solucion = el(
-    "section",
-    { class: "tarjeta solucion" },
-    el("h2", { class: "seccion-titulo" }, "Tu solución"),
+  const fallidas = reporte.pruebas.filter((p) => !p.ok);
+  let titulo = "Casi";
+  let subtitulo = `Pasaste ${reporte.pruebas.length - fallidas.length} de ${reporte.pruebas.length} casos.`;
+  if (reporte.error && !reporte.pruebas.length) {
+    const info = explicarError(reporte.error);
+    titulo = info.titulo;
+    subtitulo = info.texto;
+  } else if (!fallidas.length && reporte.avisos.length) {
+    subtitulo = "Funciona, pero no cumple una regla del ejercicio.";
+  }
+  if (CON_IA) pedirRetro();
+
+  return [
     el(
-      "ol",
-      { class: "pasos-solucion" },
-      el("li", {}, el("strong", {}, "Resuelve en papel. "), "Escribe el programa completo, con letra clara y respetando la sangría."),
-      el("li", {}, el("strong", {}, "Toma una foto "), "de tu hoja, de frente y con buena luz.", pasoFoto),
-      el("li", {}, el("strong", {}, "Revisa la lectura. "), "Debe decir lo mismo que tu hoja.", avisoLectura, editor.nodo),
-      el("li", {}, el("strong", {}, "Revisa tu solución. "), el("div", { class: "acciones" }, botonRevisar, estadoPython)),
+      "div",
+      { class: "resultado mal" },
+      el("div", { class: "resultado__icono" }, "✗"),
+      el("h1", {}, titulo),
+      el("p", { class: "texto-suave" }, subtitulo),
     ),
-    resultados,
-  );
-
-  return el(
-    "div",
-    { class: "pagina" },
-    el("a", { class: "volver", href: "#/" }, "← Todos los ejercicios"),
-    el("div", { class: "titulo-problema" }, el("span", { class: `chip chip--${nivel.id}` }, nivel.nombre.replace(/s$/, "")), el("h1", {}, problema.titulo), progreso()[problema.id] ? el("span", { class: "estado estado--ok" }, "✓ Resuelto") : null),
-    el("div", { class: "problema" }, el("div", { class: "problema__izquierda" }, enunciado, pistas), solucion),
-  );
+    reporte.avisos.map((a) => el("p", { class: "pista" }, a)),
+    fallidas.length
+      ? el(
+          "ul",
+          { class: "casos" },
+          fallidas.slice(0, 3).map((p) => el("li", { class: "mal" }, el("strong", {}, p.descripcion), el("span", {}, p.detalle))),
+        )
+      : null,
+    cajaIA,
+    reporte.consola
+      ? el("details", { class: "consola" }, el("summary", {}, "Ver lo que imprimió tu programa"), el("pre", { class: "codigo" }, reporte.consola))
+      : null,
+    barraAcciones(boton("Saltar", siguiente, "boton--claro"), boton("Corregir", () => cambiarPaso("codigo"))),
+  ].flat();
 }
 
 // ---------- navegación ----------
@@ -694,21 +735,26 @@ function vistaProblema(problema) {
 function mostrar() {
   if (!datos) return;
   const ruta = location.hash.replace(/^#\/?/, "");
-  let contenido;
+  let contenido = null;
   let titulo = "Repaso TC1037";
-  if (ruta === "calentamiento") {
-    contenido = vistaCalentamiento();
-    titulo = "Calentamiento · Repaso TC1037";
-  } else if (ruta.startsWith("problema/")) {
-    const problema = datos.problemas.find((p) => p.id === ruta.slice("problema/".length));
-    if (problema) {
-      contenido = vistaProblema(problema);
-      titulo = `${problema.titulo} · Repaso TC1037`;
+  if (ruta === "quiz/fin") {
+    contenido = vistaQuizFin();
+  } else if (ruta.startsWith("quiz/")) {
+    const numero = Number(ruta.slice(5));
+    if (numero >= 1 && numero <= datos.quiz.length) {
+      contenido = vistaQuiz(numero);
+      titulo = `Calentamiento ${numero} · Repaso TC1037`;
+    }
+  } else if (ruta.startsWith("ej/")) {
+    const ejercicio = datos.ejercicios.find((e) => e.id === ruta.slice(3));
+    if (ejercicio) {
+      contenido = vistaEjercicio(ejercicio);
+      titulo = `${ejercicio.titulo} · Repaso TC1037`;
     }
   }
   if (!contenido) contenido = vistaInicio();
   document.title = titulo;
-  vista.replaceChildren(contenido);
+  reemplazar(vista, contenido);
   window.scrollTo(0, 0);
   vista.focus({ preventScroll: true });
 }
@@ -718,10 +764,10 @@ async function iniciar() {
     const respuesta = await fetch("data/problemas.json", { cache: "no-cache" });
     datos = await respuesta.json();
   } catch {
-    vista.replaceChildren(el("p", { class: "retro-breve retro-breve--error" }, "No se pudieron cargar los ejercicios. Recarga la página."));
+    reemplazar(vista, el("p", {}, "No se pudieron cargar los ejercicios. Recarga la página."));
     return;
   }
-  pintarProgresoGlobal();
+  pintarPuntos();
   window.addEventListener("hashchange", mostrar);
   mostrar();
 }

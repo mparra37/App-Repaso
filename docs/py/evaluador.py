@@ -176,30 +176,55 @@ def _prueba_funcion(espacio, prueba):
     return resultado
 
 
+def _texto_comparable(texto):
+    texto = re.sub(r"[^\w\s.\-]", " ", normaliza(texto))
+    return " ".join(texto.split())
+
+
+def _lineas_iguales(obtenida, esperada, tol):
+    try:
+        return abs(float(obtenida.strip()) - float(esperada)) <= tol
+    except ValueError:
+        return _texto_comparable(obtenida) == _texto_comparable(esperada)
+
+
 def _prueba_programa(codigo, prueba):
-    entradas = prueba.get("entradas", [])
-    descripcion = prueba.get("descripcion") or "Con las entradas " + ", ".join(entradas)
+    entradas = [str(e) for e in prueba.get("entradas", [])]
+    descripcion = prueba.get("descripcion") or "Entradas: " + ", ".join(entradas)
     _, salida, error, sin_entradas = _ejecutar(codigo, entradas)
     impreso = salida.texto_impreso()
-    texto_normal = normaliza(impreso)
-    numeros = _numeros(impreso)
-    faltan = []
-    for buscado in prueba.get("contiene", []):
-        if isinstance(buscado, (int, float)) and not isinstance(buscado, bool):
-            if not any(abs(n - buscado) <= prueba.get("tol", 0.01) for n in numeros):
-                faltan.append(_formato(buscado))
-        elif normaliza(buscado) not in texto_normal:
-            faltan.append(f'"{buscado}"')
-    resultado = {"descripcion": descripcion, "ok": not faltan and error is None, "detalle": ""}
+    tol = prueba.get("tol", 0.01)
+    detalle = ""
+    if "salida" in prueba:
+        esperadas = [str(linea) for linea in prueba["salida"]]
+        obtenidas = [linea for linea in impreso.splitlines() if linea.strip()]
+        iguales = len(obtenidas) == len(esperadas) and all(
+            _lineas_iguales(o, e, tol) for o, e in zip(obtenidas, esperadas)
+        )
+        if not iguales:
+            impresas = " / ".join(linea.strip() for linea in obtenidas[:6]) or "nada"
+            detalle = f"se esperaba {' / '.join(esperadas)} y tu programa imprimió {impresas}."
+    else:
+        texto_normal = normaliza(impreso)
+        numeros = _numeros(impreso)
+        faltan = []
+        for buscado in prueba.get("contiene", []):
+            if isinstance(buscado, (int, float)) and not isinstance(buscado, bool):
+                if not any(abs(n - buscado) <= tol for n in numeros):
+                    faltan.append(_formato(buscado))
+            elif normaliza(buscado) not in texto_normal:
+                faltan.append(f'"{buscado}"')
+        if faltan:
+            detalle = "en lo que imprimió tu programa no aparece " + " ni ".join(faltan) + "."
+    resultado = {"descripcion": descripcion, "ok": not detalle and error is None, "detalle": detalle}
     if error is not None:
         donde = f" en la línea {error['linea']}" if error["linea"] else ""
         resultado["detalle"] = f"el programa se detuvo con {error['tipo']}{donde}."
-    elif faltan:
-        resultado["detalle"] = "en lo que imprimió tu programa no aparece " + " ni ".join(faltan) + "."
+    elif detalle:
         if sin_entradas:
-            resultado["detalle"] += " Además, pidió más datos de los que se capturaron en este caso."
+            resultado["detalle"] += " Además, pidió más datos de los que se dieron."
         elif not impreso.strip():
-            resultado["detalle"] += " El programa no imprimió nada: ¿llamaste a main() al final?"
+            resultado["detalle"] += " ¿Te faltó el print() o llamar a main()?"
     resultado["consola"] = salida.texto_consola()
     return resultado
 
@@ -235,6 +260,7 @@ def evaluar(codigo, problema):
         elif sin_entradas:
             consola = consola.rstrip("\n") + "\n[el programa pidió más datos de los del ejemplo]"
         reporte["consola"] = consola
+        reporte["impreso"] = salida_ejemplo.texto_impreso()
     return reporte
 
 

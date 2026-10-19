@@ -1,502 +1,1813 @@
 {
-  "calentamiento": [
+  "niveles": [
     {
-      "id": "c1",
-      "tipo": "opcion",
-      "pregunta": "¿Qué función redondea hacia arriba, al entero mayor o igual más cercano?",
-      "opciones": ["math.floor()", "math.ceil()", "round()", "int()"],
-      "correcta": 1,
-      "pista": "Piensa en las palabras en inglés: floor es el piso y ceiling es el techo.",
-      "explicacion": "math.ceil(4.1) da 5: sube al techo. math.floor() baja al piso, round() va al más cercano e int() corta los decimales."
+      "id": "n1",
+      "nombre": "Entrada y salida",
+      "puntos": 1
     },
     {
-      "id": "c2",
-      "tipo": "opcion",
-      "pregunta": "¿Qué valor regresa una función que no tiene return?",
-      "opciones": ["0", "El último valor que calculó", "None", "Siempre marca un error"],
-      "correcta": 2,
-      "pista": "Recuerda el ejercicio de la sesión 6 donde se esperaba 9.0 y se obtuvo otra cosa.",
-      "explicacion": "Sin return la función termina y entrega None. Por eso total = area(3) + area(4) falla si area() solo imprime."
+      "id": "n2",
+      "nombre": "Operaciones y math",
+      "puntos": 2
     },
     {
-      "id": "c3",
-      "tipo": "opcion",
-      "pregunta": "En una estructura if-elif-else, ¿cuántos bloques se ejecutan?",
-      "opciones": ["Todos los que tengan condición True", "Exactamente uno", "Ninguno si hay else", "Dos: el if y el else"],
-      "correcta": 1,
-      "pista": "¿Qué hace Python en cuanto encuentra la primera condición verdadera?",
-      "explicacion": "Python revisa de arriba hacia abajo; la primera condición True ejecuta su bloque y se salta todas las demás. Si ninguna es True, se ejecuta el else."
+      "id": "n3",
+      "nombre": "Funciones",
+      "puntos": 3
     },
     {
-      "id": "c4",
-      "tipo": "opcion",
-      "pregunta": "¿Con qué palabra reservada se declara una función en Python?",
-      "opciones": ["function", "def", "func", "define"],
-      "correcta": 1,
-      "pista": "Es la abreviatura de la palabra en inglés para «definir».",
-      "explicacion": "def nombre(parametros): inicia la declaración de una función."
+      "id": "n4",
+      "nombre": "Condicionales",
+      "puntos": 4
     },
     {
-      "id": "c5",
-      "tipo": "opcion",
-      "pregunta": "Necesitas que una condición sea True cuando se cumple cualquiera de dos condiciones. ¿Qué operador usas?",
-      "opciones": ["and", "or", "not", "=="],
-      "correcta": 1,
-      "pista": "Recuerda la analogía de las dos puertas del edificio.",
-      "explicacion": "or es generoso: basta con que una de las condiciones sea True. and exige que todas lo sean."
-    },
-    {
-      "id": "c6",
-      "tipo": "opcion",
-      "pregunta": "¿Cuál es el error en la línea  if edad = 18:  ?",
-      "opciones": ["Le falta el else", "Para comparar se usa ==", "El 18 debe ir entre comillas", "No lleva dos puntos"],
-      "correcta": 1,
-      "pista": "Un signo = sirve para una cosa y dos signos == para otra.",
-      "explicacion": "= asigna un valor a una variable; == compara dos valores y produce True o False. En una condición siempre va ==."
-    },
-    {
-      "id": "c7",
-      "tipo": "salida",
-      "pregunta": "¿Qué imprime este programa?",
-      "codigo": "print(7 // 2 + 7 % 2)",
-      "respuesta": "4",
-      "pista": "// es la división entera (sin decimales) y % es el residuo de la división.",
-      "explicacion": "7 // 2 = 3 y 7 % 2 = 1, así que 3 + 1 = 4. Las dos operaciones dan enteros, por eso no lleva .0."
-    },
-    {
-      "id": "c8",
-      "tipo": "salida",
-      "pregunta": "¿Qué imprime este programa?",
-      "codigo": "print(2 + 3 * 4 ** 2 / 8)",
-      "respuesta": "8.0",
-      "pista": "Orden: primero **, luego * y / de izquierda a derecha, y al final +. Cuida el tipo de dato que produce /.",
-      "explicacion": "4 ** 2 = 16; 3 * 16 = 48; 48 / 8 = 6.0; 2 + 6.0 = 8.0. La división / siempre da float."
-    },
-    {
-      "id": "c9",
-      "tipo": "salida",
-      "pregunta": "¿Qué imprime este programa?",
-      "codigo": "print(8 - 2 * 3 ** 2 // 4)",
-      "respuesta": "4",
-      "pista": "** va primero. Después * y // tienen la misma prioridad: se evalúan de izquierda a derecha.",
-      "explicacion": "3 ** 2 = 9; 2 * 9 = 18; 18 // 4 = 4; 8 - 4 = 4."
-    },
-    {
-      "id": "c10",
-      "tipo": "salida",
-      "pregunta": "¿Qué imprime este programa?",
-      "codigo": "import math\nprint(math.ceil(4.1) + math.floor(4.9))",
-      "respuesta": "9",
-      "pista": "ceil sube al siguiente entero y floor baja al entero anterior, sin importar qué tan cerca estén.",
-      "explicacion": "math.ceil(4.1) = 5 y math.floor(4.9) = 4; 5 + 4 = 9. Ambas regresan enteros."
-    },
-    {
-      "id": "c11",
-      "tipo": "salida",
-      "pregunta": "¿Qué imprime este programa?",
-      "codigo": "print(round(7.456, 1) + 1)",
-      "respuesta": "8.5",
-      "pista": "El segundo argumento de round() indica cuántos decimales conservar.",
-      "explicacion": "round(7.456, 1) = 7.5 y 7.5 + 1 = 8.5."
-    },
-    {
-      "id": "c12",
-      "tipo": "salida",
-      "pregunta": "¿Qué imprime este programa?",
-      "codigo": "print(not (5 > 3) or 2 == 2)",
-      "respuesta": "True",
-      "pista": "Resuelve primero lo que está entre paréntesis, luego el not y al final el or.",
-      "explicacion": "5 > 3 es True; not True es False; 2 == 2 es True; False or True da True."
-    },
-    {
-      "id": "c13",
-      "tipo": "salida",
-      "pregunta": "¿Qué imprime este programa?",
-      "codigo": "edad = 17\ntiene_permiso = True\nprint(edad >= 18 or tiene_permiso and edad > 15)",
-      "respuesta": "True",
-      "pista": "and tiene más prioridad que or, igual que * la tiene sobre +.",
-      "explicacion": "Se evalúa como edad >= 18 or (tiene_permiso and edad > 15): False or (True and True) = False or True = True."
-    },
-    {
-      "id": "c14",
-      "tipo": "salida",
-      "pregunta": "¿Qué imprime este programa?",
-      "codigo": "x = 15\nif x > 10:\n    print(\"A\")\nelif x > 5:\n    print(\"B\")\nelse:\n    print(\"C\")",
-      "respuesta": "A",
-      "pista": "15 también es mayor que 5, pero ¿Python llega a revisar esa condición?",
-      "explicacion": "x > 10 es True, así que se imprime A y se saltan el elif y el else, aunque x > 5 también sea cierto."
-    },
-    {
-      "id": "c15",
-      "tipo": "salida",
-      "pregunta": "¿Qué imprime este programa?",
-      "codigo": "def f(x):\n    return x * 2 + 1\n\nprint(f(f(2)))",
-      "respuesta": "11",
-      "pista": "Resuelve de adentro hacia afuera: primero f(2) y ese resultado entra otra vez a f().",
-      "explicacion": "f(2) = 2 * 2 + 1 = 5; f(5) = 5 * 2 + 1 = 11."
-    },
-    {
-      "id": "c16",
-      "tipo": "salida",
-      "pregunta": "¿Qué imprime este programa? (si son varias líneas, escribe una por renglón)",
-      "codigo": "def cuadrado(n):\n    print(n ** 2)\n\ny = cuadrado(3)\nprint(y)",
-      "respuesta": "9\nNone",
-      "pista": "Son dos print() en total. ¿Qué valor guarda y si la función no tiene return?",
-      "explicacion": "Al llamar cuadrado(3) se imprime 9 dentro de la función. Como no hay return, y vale None y el segundo print muestra None."
-    },
-    {
-      "id": "c17",
-      "tipo": "salida",
-      "pregunta": "¿Qué imprime este programa?",
-      "codigo": "a = 7\nb = 2\nprint(a / b, a // b)",
-      "respuesta": "3.5 3",
-      "pista": "print() con dos valores separados por coma los muestra separados por un espacio.",
-      "explicacion": "7 / 2 = 3.5 (float) y 7 // 2 = 3 (int, división entera)."
-    },
-    {
-      "id": "c18",
-      "tipo": "salida",
-      "pregunta": "¿Qué imprime este programa?",
-      "codigo": "print(int(7.9) + float(\"2\"))",
-      "respuesta": "9.0",
-      "pista": "int() no redondea: corta los decimales. ¿Qué tipo de dato resulta al sumar un int con un float?",
-      "explicacion": "int(7.9) = 7 y float(\"2\") = 2.0; 7 + 2.0 = 9.0. Si en una suma hay un float, el resultado es float."
+      "id": "n5",
+      "nombre": "Retos",
+      "puntos": 5
     }
   ],
-  "niveles": [
-    { "id": "basico", "nombre": "Básicos", "descripcion": "Una o dos funciones, un cálculo o una decisión sencilla." },
-    { "id": "intermedio", "nombre": "Intermedios", "descripcion": "Combinan math, varias funciones y condicionales con elif, and y or." },
-    { "id": "examen", "nombre": "Tipo examen", "descripcion": "Programas completos con main(), validación de datos y salida con dos decimales." }
+  "quiz": [
+    {
+      "id": "q1",
+      "tema": "input()",
+      "pregunta": "¿Qué tipo de dato regresa input()?",
+      "opciones": [
+        "int",
+        "Depende de lo que escriba el usuario",
+        "str",
+        "float"
+      ],
+      "correcta": 2,
+      "explicacion": "input() siempre regresa texto (str). Para hacer cuentas hay que convertirlo con int() o float()."
+    },
+    {
+      "id": "q2",
+      "tema": "input()",
+      "pregunta": "El usuario escribe 5. ¿Qué se imprime?",
+      "codigo": "n = input()\nprint(n * 2)",
+      "opciones": [
+        "10",
+        "55",
+        "10.0",
+        "Error"
+      ],
+      "correcta": 1,
+      "explicacion": "n es el texto \"5\". Multiplicar un texto por 2 lo repite: \"55\"."
+    },
+    {
+      "id": "q3",
+      "tema": "Tipos",
+      "pregunta": "¿De qué tipo es el resultado de 7 / 2?",
+      "opciones": [
+        "float",
+        "int",
+        "str",
+        "bool"
+      ],
+      "correcta": 0,
+      "explicacion": "La división / siempre da float: 3.5. La división entera // daría int."
+    },
+    {
+      "id": "q4",
+      "tema": "Operadores",
+      "pregunta": "¿Cuánto vale 17 % 5?",
+      "opciones": [
+        "3",
+        "3.4",
+        "2",
+        "12"
+      ],
+      "correcta": 2,
+      "explicacion": "% es el residuo: 17 entre 5 cabe 3 veces (15) y sobran 2."
+    },
+    {
+      "id": "q5",
+      "tema": "Operadores",
+      "pregunta": "¿Cuánto vale 17 // 5?",
+      "opciones": [
+        "3",
+        "3.4",
+        "2",
+        "4"
+      ],
+      "correcta": 0,
+      "explicacion": "// es la división entera: se queda con la parte entera, 3."
+    },
+    {
+      "id": "q6",
+      "tema": "Jerarquía",
+      "pregunta": "¿Qué imprime?",
+      "codigo": "print(2 + 3 * 2 ** 2)",
+      "opciones": [
+        "100",
+        "20",
+        "36",
+        "14"
+      ],
+      "correcta": 3,
+      "explicacion": "Primero ** (2 ** 2 = 4), luego * (3 * 4 = 12) y al final + (2 + 12 = 14)."
+    },
+    {
+      "id": "q7",
+      "tema": "f-strings",
+      "pregunta": "¿Qué imprime?",
+      "codigo": "x = 3.14159\nprint(f\"{x:.2f}\")",
+      "opciones": [
+        "3.1",
+        "3.14",
+        "3.14159",
+        "3"
+      ],
+      "correcta": 1,
+      "explicacion": ":.2f muestra el número con 2 decimales."
+    },
+    {
+      "id": "q8",
+      "tema": "math",
+      "pregunta": "¿Qué hay que escribir antes de usar math.sqrt()?",
+      "opciones": [
+        "include math",
+        "using math",
+        "import math",
+        "Nada"
+      ],
+      "correcta": 2,
+      "explicacion": "Las funciones de la librería math se habilitan con import math, normalmente al inicio del programa."
+    },
+    {
+      "id": "q9",
+      "tema": "math",
+      "pregunta": "¿Qué imprime?",
+      "codigo": "import math\nprint(math.ceil(4.1), math.floor(4.9))",
+      "opciones": [
+        "4 5",
+        "5 4",
+        "4 4",
+        "5 5"
+      ],
+      "correcta": 1,
+      "explicacion": "ceil sube al siguiente entero (5) y floor baja al anterior (4)."
+    },
+    {
+      "id": "q10",
+      "tema": "Funciones",
+      "pregunta": "¿Qué hace return dentro de una función?",
+      "opciones": [
+        "Muestra el valor en pantalla",
+        "Entrega un valor a quien llamó la función",
+        "Repite la función",
+        "Pide un dato al usuario"
+      ],
+      "correcta": 1,
+      "explicacion": "return termina la función y entrega el valor; así se puede guardar en una variable o usar en otra cuenta."
+    },
+    {
+      "id": "q11",
+      "tema": "Funciones",
+      "pregunta": "¿Qué imprime?",
+      "codigo": "def suma(a, b):\n    print(a + b)\n\nr = suma(2, 3)\nprint(r)",
+      "opciones": [
+        "5 y luego 5",
+        "Solo 5",
+        "5 y luego None",
+        "Error"
+      ],
+      "correcta": 2,
+      "explicacion": "La función imprime 5, pero no tiene return, así que r vale None."
+    },
+    {
+      "id": "q12",
+      "tema": "Funciones",
+      "pregunta": "¿Qué pasa al ejecutar esto?",
+      "codigo": "def f():\n    y = 10\n\nf()\nprint(y)",
+      "opciones": [
+        "Imprime 10",
+        "Imprime None",
+        "Imprime 0",
+        "NameError"
+      ],
+      "correcta": 3,
+      "explicacion": "y es una variable local: solo existe dentro de f(). Afuera, Python no la conoce."
+    },
+    {
+      "id": "q13",
+      "tema": "and / or / not",
+      "pregunta": "¿Qué imprime?",
+      "codigo": "print(10 > 3 and 2 > 5)",
+      "opciones": [
+        "True",
+        "False",
+        "10",
+        "Error"
+      ],
+      "correcta": 1,
+      "explicacion": "and necesita que ambas sean True. 2 > 5 es False, así que todo es False."
+    },
+    {
+      "id": "q14",
+      "tema": "and / or / not",
+      "pregunta": "¿Qué imprime?",
+      "codigo": "print(not False or False)",
+      "opciones": [
+        "False",
+        "None",
+        "True",
+        "Error"
+      ],
+      "correcta": 2,
+      "explicacion": "not False es True, y True or False es True."
+    },
+    {
+      "id": "q15",
+      "tema": "if / elif / else",
+      "pregunta": "¿Qué imprime?",
+      "codigo": "x = 7\nif x > 5:\n    print(\"A\")\nelif x > 3:\n    print(\"B\")\nelse:\n    print(\"C\")",
+      "opciones": [
+        "A",
+        "B",
+        "A y B",
+        "C"
+      ],
+      "correcta": 0,
+      "explicacion": "Se ejecuta solo el primer bloque cuya condición es True. Aunque x > 3 también se cumple, ya no se revisa."
+    }
   ],
-  "problemas": [
+  "ejercicios": [
     {
-      "id": "b1",
-      "nivel": "basico",
-      "titulo": "Área y perímetro de un círculo",
-      "descripcion": "Escribe un programa que pida el radio de un círculo y muestre su área y su perímetro con dos decimales.",
-      "requisitos": [
-        "Declara area_circulo(radio), que regrese el área (π · r²).",
-        "Declara perimetro_circulo(radio), que regrese el perímetro (2 · π · r).",
-        "Usa math.pi. main() pide el radio y muestra los resultados."
-      ],
-      "entrada": "Radio del círculo, en cm.",
-      "salida": "Área y perímetro, con dos decimales.",
-      "ejemplo": { "entradas": ["5"], "texto": "Radio en cm: 5\nArea = 78.54 cm2\nPerimetro = 31.42 cm" },
-      "pruebas": [
-        { "tipo": "funcion", "funcion": "area_circulo", "args": [1], "esperado": 3.14159, "tol": 0.001 },
-        { "tipo": "funcion", "funcion": "area_circulo", "args": [5], "esperado": 78.5398, "tol": 0.001 },
-        { "tipo": "funcion", "funcion": "perimetro_circulo", "args": [1], "esperado": 6.28319, "tol": 0.001 },
-        { "tipo": "funcion", "funcion": "perimetro_circulo", "args": [2.5], "esperado": 15.70796, "tol": 0.001 },
-        { "tipo": "programa", "entradas": ["10"], "contiene": [314.16, 62.83] }
-      ],
+      "id": "n1a",
+      "nivel": "n1",
+      "titulo": "Hola",
+      "descripcion": "Lee un nombre y saluda a esa persona.",
+      "entrada": "Un nombre.",
+      "salida": "Hola, seguido del nombre.",
+      "ejemplo": {
+        "entradas": [
+          "Ana"
+        ],
+        "salida": [
+          "Hola, Ana"
+        ]
+      },
       "pistas": [
-        "Divide el problema: las funciones solo calculan; main() pide el dato y muestra los resultados.",
-        "Para usar π escribe import math al inicio del programa y luego math.pi. El radio al cuadrado se escribe radio ** 2.",
-        "Dentro de cada función va el cálculo y un return. Para mostrar dos decimales usa un f-string como f\"{valor:.2f}\"."
+        "nombre = input() guarda lo que escribe el usuario.",
+        "print(\"Hola,\", nombre) muestra dos cosas separadas por un espacio."
+      ],
+      "pruebas": [
+        {
+          "tipo": "programa",
+          "entradas": [
+            "Ana"
+          ],
+          "salida": [
+            "Hola, Ana"
+          ]
+        },
+        {
+          "tipo": "programa",
+          "entradas": [
+            "Luis"
+          ],
+          "salida": [
+            "Hola, Luis"
+          ]
+        }
       ]
     },
     {
-      "id": "b2",
-      "nivel": "basico",
-      "titulo": "¿Es par?",
-      "descripcion": "Escribe un programa que pida un número entero y muestre True si es par o False si es impar.",
-      "requisitos": [
-        "Declara es_par(n), que regrese True o False (el valor booleano, no un texto).",
-        "main() pide el número, llama a es_par() e imprime lo que regresa."
-      ],
+      "id": "n1b",
+      "nivel": "n1",
+      "titulo": "El doble",
+      "descripcion": "Lee un número entero y muestra su doble.",
       "entrada": "Un número entero.",
-      "salida": "True si es par; False si es impar.",
-      "ejemplo": { "entradas": ["8"], "texto": "Numero: 8\nTrue" },
-      "pruebas": [
-        { "tipo": "funcion", "funcion": "es_par", "args": [4], "esperado": true },
-        { "tipo": "funcion", "funcion": "es_par", "args": [7], "esperado": false },
-        { "tipo": "funcion", "funcion": "es_par", "args": [0], "esperado": true },
-        { "tipo": "funcion", "funcion": "es_par", "args": [-3], "esperado": false },
-        { "tipo": "programa", "entradas": ["13"], "contiene": ["False"] }
-      ],
+      "salida": "El doble del número. Solo el número.",
+      "ejemplo": {
+        "entradas": [
+          "7"
+        ],
+        "salida": [
+          "14"
+        ]
+      },
       "pistas": [
-        "Un número es par cuando al dividirlo entre 2 no sobra nada.",
-        "El operador % da el residuo de una división: 7 % 2 vale 1 y 8 % 2 vale 0.",
-        "Una comparación con == ya produce True o False: puedes regresarla directamente o usar if/else con return True y return False."
+        "input() regresa texto: conviértelo con int(input()).",
+        "El doble es n * 2."
+      ],
+      "pruebas": [
+        {
+          "tipo": "programa",
+          "entradas": [
+            "7"
+          ],
+          "salida": [
+            "14"
+          ]
+        },
+        {
+          "tipo": "programa",
+          "entradas": [
+            "-3"
+          ],
+          "salida": [
+            "-6"
+          ]
+        }
       ]
     },
     {
-      "id": "b3",
-      "nivel": "basico",
+      "id": "n1c",
+      "nivel": "n1",
+      "titulo": "Suma",
+      "descripcion": "Lee dos números enteros y muestra su suma.",
+      "entrada": "Dos enteros, uno en cada renglón.",
+      "salida": "La suma. Solo el número.",
+      "ejemplo": {
+        "entradas": [
+          "3",
+          "4"
+        ],
+        "salida": [
+          "7"
+        ]
+      },
+      "pistas": [
+        "Usa un input() para cada número, cada uno con int().",
+        "Si no conviertes, \"3\" + \"4\" da \"34\"."
+      ],
+      "pruebas": [
+        {
+          "tipo": "programa",
+          "entradas": [
+            "3",
+            "4"
+          ],
+          "salida": [
+            "7"
+          ]
+        },
+        {
+          "tipo": "programa",
+          "entradas": [
+            "10",
+            "-2"
+          ],
+          "salida": [
+            "8"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "n1d",
+      "nivel": "n1",
+      "titulo": "Área del triángulo",
+      "descripcion": "Lee la base y la altura de un triángulo y muestra su área.",
+      "entrada": "Base y altura (decimales), una en cada renglón.",
+      "salida": "El área.",
+      "ejemplo": {
+        "entradas": [
+          "10",
+          "4"
+        ],
+        "salida": [
+          "20.0"
+        ]
+      },
+      "pistas": [
+        "Convierte con float(input()).",
+        "Área = base * altura / 2."
+      ],
+      "pruebas": [
+        {
+          "tipo": "programa",
+          "entradas": [
+            "10",
+            "4"
+          ],
+          "salida": [
+            "20.0"
+          ]
+        },
+        {
+          "tipo": "programa",
+          "entradas": [
+            "3",
+            "5"
+          ],
+          "salida": [
+            "7.5"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "n1e",
+      "nivel": "n1",
+      "titulo": "100 años",
+      "descripcion": "Lee la edad de una persona y el año actual. Muestra el año en que cumplirá 100 años.",
+      "entrada": "La edad y el año actual (enteros), en ese orden.",
+      "salida": "El año en que cumplirá 100.",
+      "ejemplo": {
+        "entradas": [
+          "10",
+          "2020"
+        ],
+        "salida": [
+          "2110"
+        ]
+      },
+      "pistas": [
+        "¿Cuántos años le faltan para llegar a 100?",
+        "Año = año actual + (100 - edad)."
+      ],
+      "pruebas": [
+        {
+          "tipo": "programa",
+          "entradas": [
+            "10",
+            "2020"
+          ],
+          "salida": [
+            "2110"
+          ]
+        },
+        {
+          "tipo": "programa",
+          "entradas": [
+            "45",
+            "2026"
+          ],
+          "salida": [
+            "2081"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "n1f",
+      "nivel": "n1",
+      "titulo": "Videojuegos",
+      "descripcion": "Los juegos nuevos cuestan $1000 y los usados $350. Calcula el total de la compra.",
+      "entrada": "Juegos nuevos y juegos usados (enteros), en ese orden.",
+      "salida": "El total.",
+      "ejemplo": {
+        "entradas": [
+          "2",
+          "3"
+        ],
+        "salida": [
+          "3050"
+        ]
+      },
+      "pistas": [
+        "Multiplica cada cantidad por su precio.",
+        "Total = nuevos * 1000 + usados * 350."
+      ],
+      "pruebas": [
+        {
+          "tipo": "programa",
+          "entradas": [
+            "2",
+            "3"
+          ],
+          "salida": [
+            "3050"
+          ]
+        },
+        {
+          "tipo": "programa",
+          "entradas": [
+            "0",
+            "4"
+          ],
+          "salida": [
+            "1400"
+          ]
+        },
+        {
+          "tipo": "programa",
+          "entradas": [
+            "1",
+            "0"
+          ],
+          "salida": [
+            "1000"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "n2a",
+      "nivel": "n2",
+      "titulo": "Promedio de 4 materias",
+      "descripcion": "Lee las calificaciones de 4 materias y muestra el promedio.",
+      "entrada": "4 enteros, uno en cada renglón.",
+      "salida": "El promedio.",
+      "ejemplo": {
+        "entradas": [
+          "90",
+          "60",
+          "100",
+          "70"
+        ],
+        "salida": [
+          "80.0"
+        ]
+      },
+      "pistas": [
+        "Primero suma las cuatro calificaciones.",
+        "Usa paréntesis: (a + b + c + d) / 4. Sin ellos, solo d se divide entre 4."
+      ],
+      "pruebas": [
+        {
+          "tipo": "programa",
+          "entradas": [
+            "90",
+            "60",
+            "100",
+            "70"
+          ],
+          "salida": [
+            "80.0"
+          ]
+        },
+        {
+          "tipo": "programa",
+          "entradas": [
+            "85",
+            "90",
+            "78",
+            "100"
+          ],
+          "salida": [
+            "88.25"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "n2b",
+      "nivel": "n2",
+      "titulo": "Lustros",
+      "descripcion": "Un lustro son 5 años. Lee el año de nacimiento y el año actual; muestra los lustros vividos.",
+      "entrada": "Año de nacimiento y año actual (enteros).",
+      "salida": "Los lustros, con decimales.",
+      "ejemplo": {
+        "entradas": [
+          "1996",
+          "2020"
+        ],
+        "salida": [
+          "4.8"
+        ]
+      },
+      "pistas": [
+        "Calcula primero los años vividos.",
+        "Lustros = años vividos / 5."
+      ],
+      "pruebas": [
+        {
+          "tipo": "programa",
+          "entradas": [
+            "1996",
+            "2020"
+          ],
+          "salida": [
+            "4.8"
+          ]
+        },
+        {
+          "tipo": "programa",
+          "entradas": [
+            "2000",
+            "2025"
+          ],
+          "salida": [
+            "5.0"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "n2c",
+      "nivel": "n2",
+      "titulo": "El caracol",
+      "descripcion": "Un caracol avanza 5.7 mm por segundo. Lee los minutos y muestra cuántos centímetros recorre.",
+      "entrada": "Minutos (decimal).",
+      "salida": "Centímetros recorridos.",
+      "ejemplo": {
+        "entradas": [
+          "1"
+        ],
+        "salida": [
+          "34.2"
+        ]
+      },
+      "pistas": [
+        "Pasa los minutos a segundos y multiplica por 5.7: eso da milímetros.",
+        "1 cm = 10 mm."
+      ],
+      "pruebas": [
+        {
+          "tipo": "programa",
+          "entradas": [
+            "1"
+          ],
+          "salida": [
+            "34.2"
+          ]
+        },
+        {
+          "tipo": "programa",
+          "entradas": [
+            "2.5"
+          ],
+          "salida": [
+            "85.5"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "n2d",
+      "nivel": "n2",
+      "titulo": "Precio del cemento",
+      "descripcion": "Lee la cantidad de bultos y el precio por bulto. Muestra el subtotal, el impuesto (16%) y el total.",
+      "entrada": "Bultos (entero) y precio por bulto (decimal).",
+      "salida": "Tres renglones: subtotal, impuesto y total.",
+      "ejemplo": {
+        "entradas": [
+          "5",
+          "180"
+        ],
+        "salida": [
+          "900.0",
+          "144.0",
+          "1044.0"
+        ]
+      },
+      "pistas": [
+        "16% se escribe 0.16.",
+        "Usa tres print(), uno por renglón."
+      ],
+      "pruebas": [
+        {
+          "tipo": "programa",
+          "entradas": [
+            "5",
+            "180"
+          ],
+          "salida": [
+            "900.0",
+            "144.0",
+            "1044.0"
+          ]
+        },
+        {
+          "tipo": "programa",
+          "entradas": [
+            "2",
+            "250.5"
+          ],
+          "salida": [
+            "501.0",
+            "80.16",
+            "581.16"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "n2e",
+      "nivel": "n2",
       "titulo": "Hipotenusa",
-      "descripcion": "Escribe un programa que pida los dos catetos de un triángulo rectángulo y muestre la hipotenusa con dos decimales.",
-      "requisitos": [
-        "Declara hipotenusa(a, b), que regrese la raíz cuadrada de a² + b² usando math.sqrt().",
-        "main() pide los catetos y muestra el resultado."
-      ],
-      "entrada": "Los dos catetos, en cm.",
-      "salida": "La hipotenusa, con dos decimales.",
-      "ejemplo": { "entradas": ["3", "4"], "texto": "Cateto a: 3\nCateto b: 4\nHipotenusa = 5.00 cm" },
-      "pruebas": [
-        { "tipo": "funcion", "funcion": "hipotenusa", "args": [3, 4], "esperado": 5.0 },
-        { "tipo": "funcion", "funcion": "hipotenusa", "args": [5, 12], "esperado": 13.0 },
-        { "tipo": "funcion", "funcion": "hipotenusa", "args": [1, 1], "esperado": 1.41421, "tol": 0.001 },
-        { "tipo": "programa", "entradas": ["6", "8"], "contiene": [10] }
-      ],
+      "descripcion": "Lee los dos catetos de un triángulo rectángulo y muestra la hipotenusa.",
+      "entrada": "Los dos catetos (decimales).",
+      "salida": "La hipotenusa.",
+      "usa": "import math y math.sqrt()",
+      "ejemplo": {
+        "entradas": [
+          "3",
+          "4"
+        ],
+        "salida": [
+          "5.0"
+        ]
+      },
       "pistas": [
-        "Teorema de Pitágoras: c² = a² + b².",
-        "math.sqrt(x) calcula la raíz cuadrada; recuerda escribir import math al inicio.",
-        "Cuida el orden: primero se suman los dos cuadrados y después se saca la raíz de toda la suma (revisa tus paréntesis)."
+        "Pitágoras: c² = a² + b².",
+        "math.sqrt(a ** 2 + b ** 2). No olvides import math."
+      ],
+      "pruebas": [
+        {
+          "tipo": "programa",
+          "entradas": [
+            "3",
+            "4"
+          ],
+          "salida": [
+            "5.0"
+          ]
+        },
+        {
+          "tipo": "programa",
+          "entradas": [
+            "5",
+            "12"
+          ],
+          "salida": [
+            "13.0"
+          ]
+        },
+        {
+          "tipo": "programa",
+          "entradas": [
+            "1",
+            "1"
+          ],
+          "salida": [
+            "1.4142"
+          ]
+        }
       ]
     },
     {
-      "id": "b4",
-      "nivel": "basico",
-      "titulo": "El mayor de dos números",
-      "descripcion": "Escribe un programa que pida dos números y muestre cuál es el mayor. Si son iguales, muestra cualquiera de los dos.",
-      "requisitos": [
-        "Declara mayor(a, b), que regrese el mayor de los dos usando if/else.",
-        "No uses la función max(): la idea es practicar la decisión."
-      ],
-      "entrada": "Dos números.",
-      "salida": "El mayor de los dos.",
-      "ejemplo": { "entradas": ["7", "12"], "texto": "Primer numero: 7\nSegundo numero: 12\nEl mayor es 12.0" },
-      "pruebas": [
-        { "tipo": "funcion", "funcion": "mayor", "args": [3, 8], "esperado": 8 },
-        { "tipo": "funcion", "funcion": "mayor", "args": [10, 2], "esperado": 10 },
-        { "tipo": "funcion", "funcion": "mayor", "args": [5, 5], "esperado": 5 },
-        { "tipo": "funcion", "funcion": "mayor", "args": [-1, -4], "esperado": -1 },
-        { "tipo": "programa", "entradas": ["7", "12"], "contiene": [12] }
-      ],
-      "prohibido": [{ "texto": "max(", "mensaje": "Usaste max(): resuélvelo con if/else para practicar la decisión." }],
+      "id": "n2f",
+      "nivel": "n2",
+      "titulo": "Pizzas",
+      "descripcion": "Cada pizza tiene 8 rebanadas. Lee cuántas personas van y cuántas rebanadas come cada una. Muestra cuántas pizzas hay que comprar.",
+      "entrada": "Personas y rebanadas por persona (enteros).",
+      "salida": "Pizzas a comprar (entero).",
+      "usa": "math.ceil()",
+      "ejemplo": {
+        "entradas": [
+          "5",
+          "3"
+        ],
+        "salida": [
+          "2"
+        ]
+      },
       "pistas": [
-        "¿Qué operador de comparación te dice si a es más grande que b?",
-        "Con if a > b: decides cuál regresar; el else cubre el otro caso (incluido cuando son iguales).",
-        "Cada camino del if/else debe terminar en un return."
+        "15 rebanadas / 8 = 1.875 pizzas, pero no venden pedazos.",
+        "math.ceil() redondea hacia arriba."
+      ],
+      "pruebas": [
+        {
+          "tipo": "programa",
+          "entradas": [
+            "5",
+            "3"
+          ],
+          "salida": [
+            "2"
+          ]
+        },
+        {
+          "tipo": "programa",
+          "entradas": [
+            "8",
+            "2"
+          ],
+          "salida": [
+            "2"
+          ]
+        },
+        {
+          "tipo": "programa",
+          "entradas": [
+            "4",
+            "5"
+          ],
+          "salida": [
+            "3"
+          ]
+        }
       ]
     },
     {
-      "id": "i1",
-      "nivel": "intermedio",
-      "titulo": "Pizzas para la fiesta",
-      "descripcion": "Cada pizza trae 8 rebanadas y solo se venden pizzas completas. Escribe un programa que pida el número de personas y cuántas rebanadas come cada una, y que muestre el total de rebanadas y cuántas pizzas hay que comprar.",
-      "requisitos": [
-        "Declara total_rebanadas(personas, rebanadas_por_persona).",
-        "Declara pizzas_necesarias(rebanadas) usando math.ceil().",
-        "main() pide los datos, llama a las dos funciones y muestra los resultados."
-      ],
-      "entrada": "Número de personas y rebanadas por persona (enteros).",
-      "salida": "Total de rebanadas y número de pizzas a comprar.",
-      "ejemplo": { "entradas": ["5", "3"], "texto": "Personas: 5\nRebanadas por persona: 3\nRebanadas: 15\nPizzas a comprar: 2" },
-      "pruebas": [
-        { "tipo": "funcion", "funcion": "total_rebanadas", "args": [5, 3], "esperado": 15 },
-        { "tipo": "funcion", "funcion": "pizzas_necesarias", "args": [15], "esperado": 2 },
-        { "tipo": "funcion", "funcion": "pizzas_necesarias", "args": [16], "esperado": 2 },
-        { "tipo": "funcion", "funcion": "pizzas_necesarias", "args": [17], "esperado": 3 },
-        { "tipo": "funcion", "funcion": "pizzas_necesarias", "args": [1], "esperado": 1 },
-        { "tipo": "programa", "entradas": ["12", "2"], "contiene": [24, 3] }
-      ],
+      "id": "n3a",
+      "nivel": "n3",
+      "titulo": "Tu primera función",
+      "descripcion": "Escribe la función cuadrado(n) que regrese n al cuadrado. El programa lee un entero y muestra su cuadrado usando la función.",
+      "entrada": "Un entero.",
+      "salida": "Su cuadrado.",
+      "usa": "def cuadrado(n): con return",
+      "ejemplo": {
+        "entradas": [
+          "5"
+        ],
+        "salida": [
+          "25"
+        ]
+      },
       "pistas": [
-        "Divide y vencerás: primero cuántas rebanadas se necesitan en total y después cuántas pizzas son.",
-        "15 / 8 = 1.875 pizzas, pero no venden 0.875 de pizza. ¿Hacia dónde hay que redondear para que nadie se quede sin comer?",
-        "math.ceil() redondea hacia arriba, math.floor() hacia abajo y round() al más cercano. Solo una sirve aquí."
+        "def cuadrado(n): y en la siguiente línea, con sangría, return ...",
+        "Afuera de la función: lee el número y haz print(cuadrado(n))."
+      ],
+      "pruebas": [
+        {
+          "tipo": "funcion",
+          "funcion": "cuadrado",
+          "args": [
+            3
+          ],
+          "esperado": 9
+        },
+        {
+          "tipo": "funcion",
+          "funcion": "cuadrado",
+          "args": [
+            -4
+          ],
+          "esperado": 16
+        },
+        {
+          "tipo": "programa",
+          "entradas": [
+            "5"
+          ],
+          "salida": [
+            "25"
+          ]
+        }
       ]
     },
     {
-      "id": "i2",
-      "nivel": "intermedio",
-      "titulo": "Estacionamiento",
-      "descripcion": "Un estacionamiento cobra $20.00 la primera hora y $15.00 cada hora adicional; toda fracción de hora se cobra como hora completa. Escribe un programa que pida los minutos que estuvo el auto y muestre las horas cobradas y el total a pagar con dos decimales. Si los minutos son menores o iguales a cero, muestra un mensaje que empiece con \"Error\".",
-      "requisitos": [
-        "Declara horas_cobradas(minutos) usando math.ceil().",
-        "Declara tarifa(horas), que regrese el total a pagar.",
-        "Valida los minutos en main() con if/else."
-      ],
-      "entrada": "Minutos de estancia (entero).",
-      "salida": "Horas cobradas y total a pagar, o un mensaje de error.",
-      "ejemplo": { "entradas": ["150"], "texto": "Minutos: 150\nHoras cobradas: 3\nTotal: $50.00" },
-      "pruebas": [
-        { "tipo": "funcion", "funcion": "horas_cobradas", "args": [150], "esperado": 3 },
-        { "tipo": "funcion", "funcion": "horas_cobradas", "args": [60], "esperado": 1 },
-        { "tipo": "funcion", "funcion": "horas_cobradas", "args": [61], "esperado": 2 },
-        { "tipo": "funcion", "funcion": "tarifa", "args": [1], "esperado": 20 },
-        { "tipo": "funcion", "funcion": "tarifa", "args": [3], "esperado": 50 },
-        { "tipo": "funcion", "funcion": "tarifa", "args": [5], "esperado": 80 },
-        { "tipo": "programa", "entradas": ["45"], "contiene": [1, 20] },
-        { "tipo": "programa", "entradas": ["0"], "contiene": ["Error"], "descripcion": "Con 0 minutos se muestra un mensaje de error" },
-        { "tipo": "programa", "entradas": ["-30"], "contiene": ["Error"], "descripcion": "Con -30 minutos se muestra un mensaje de error" }
-      ],
+      "id": "n3b",
+      "nivel": "n3",
+      "titulo": "Área del rectángulo",
+      "descripcion": "Escribe area_rectangulo(base, altura) que regrese el área. El programa lee base y altura y muestra el área.",
+      "entrada": "Base y altura (decimales).",
+      "salida": "El área.",
+      "usa": "def area_rectangulo(base, altura):",
+      "ejemplo": {
+        "entradas": [
+          "5",
+          "3"
+        ],
+        "salida": [
+          "15.0"
+        ]
+      },
       "pistas": [
-        "150 minutos son 2.5 horas, pero se cobran 3. ¿Qué función de math redondea hacia arriba?",
-        "La primera hora cuesta 20 y cada una de las demás cuesta 15. Si se cobran 3 horas, ¿cuántas son adicionales?",
-        "Valida primero: if minutos <= 0 muestra el error; el cálculo y los resultados van dentro del else."
+        "La función recibe dos parámetros y regresa base * altura.",
+        "Los input() van afuera de la función, no adentro."
+      ],
+      "pruebas": [
+        {
+          "tipo": "funcion",
+          "funcion": "area_rectangulo",
+          "args": [
+            5,
+            3
+          ],
+          "esperado": 15
+        },
+        {
+          "tipo": "funcion",
+          "funcion": "area_rectangulo",
+          "args": [
+            2.5,
+            4
+          ],
+          "esperado": 10
+        },
+        {
+          "tipo": "programa",
+          "entradas": [
+            "5",
+            "3"
+          ],
+          "salida": [
+            "15.0"
+          ]
+        }
       ]
     },
     {
-      "id": "i3",
-      "nivel": "intermedio",
-      "titulo": "Multa por velocidad",
-      "descripcion": "Escribe un programa que pida la velocidad de un auto y el límite de velocidad de la calle (km/h). Si el auto no rebasa el límite no hay multa; si lo rebasa por 20 km/h o menos, la multa es de $500.00; si lo rebasa por más de 20 km/h, la multa es de $1500.00. Muestra la multa con dos decimales.",
-      "requisitos": [
-        "Declara multa(velocidad, limite), que regrese 0, 500 o 1500.",
-        "Usa if, elif y else."
-      ],
-      "entrada": "Velocidad del auto y límite de la calle (km/h).",
-      "salida": "El monto de la multa.",
-      "ejemplo": { "entradas": ["75", "60"], "texto": "Velocidad: 75\nLimite: 60\nMulta: $500.00" },
-      "pruebas": [
-        { "tipo": "funcion", "funcion": "multa", "args": [60, 60], "esperado": 0 },
-        { "tipo": "funcion", "funcion": "multa", "args": [50, 60], "esperado": 0 },
-        { "tipo": "funcion", "funcion": "multa", "args": [75, 60], "esperado": 500 },
-        { "tipo": "funcion", "funcion": "multa", "args": [80, 60], "esperado": 500 },
-        { "tipo": "funcion", "funcion": "multa", "args": [81, 60], "esperado": 1500 },
-        { "tipo": "funcion", "funcion": "multa", "args": [130, 80], "esperado": 1500 },
-        { "tipo": "programa", "entradas": ["100", "60"], "contiene": [1500] }
-      ],
+      "id": "n3c",
+      "nivel": "n3",
+      "titulo": "Celsius a Fahrenheit",
+      "descripcion": "Escribe celsius_a_fahrenheit(c) que regrese la temperatura en °F. El programa lee °C y muestra °F.",
+      "entrada": "Grados Celsius (decimal).",
+      "salida": "Grados Fahrenheit.",
+      "usa": "def celsius_a_fahrenheit(c):",
+      "ejemplo": {
+        "entradas": [
+          "25"
+        ],
+        "salida": [
+          "77.0"
+        ]
+      },
       "pistas": [
-        "Calcula primero el exceso: velocidad - limite.",
-        "Hay tres casos posibles: if, elif y else. ¿Cuál conviene revisar primero?",
-        "Revisa los bordes: con 20 km/h exactos de exceso todavía se pagan $500. ¿Tu comparación usa > o >=?"
+        "°F = °C * 9 / 5 + 32.",
+        "La función debe usar return, no print()."
+      ],
+      "pruebas": [
+        {
+          "tipo": "funcion",
+          "funcion": "celsius_a_fahrenheit",
+          "args": [
+            0
+          ],
+          "esperado": 32
+        },
+        {
+          "tipo": "funcion",
+          "funcion": "celsius_a_fahrenheit",
+          "args": [
+            100
+          ],
+          "esperado": 212
+        },
+        {
+          "tipo": "funcion",
+          "funcion": "celsius_a_fahrenheit",
+          "args": [
+            -40
+          ],
+          "esperado": -40
+        },
+        {
+          "tipo": "programa",
+          "entradas": [
+            "25"
+          ],
+          "salida": [
+            "77.0"
+          ]
+        }
       ]
     },
     {
-      "id": "i4",
-      "nivel": "intermedio",
+      "id": "n3d",
+      "nivel": "n3",
+      "titulo": "Pendiente de una recta",
+      "descripcion": "Escribe pendiente(x1, y1, x2, y2) que regrese (y2 - y1) / (x2 - x1). El programa lee los 4 valores y muestra la pendiente redondeada a 2 decimales.",
+      "entrada": "x1, y1, x2, y2 (decimales), uno por renglón.",
+      "salida": "La pendiente con 2 decimales.",
+      "usa": "def pendiente(x1, y1, x2, y2): y round()",
+      "ejemplo": {
+        "entradas": [
+          "3.6",
+          "-1.3",
+          "8.6",
+          "2.5"
+        ],
+        "salida": [
+          "0.76"
+        ]
+      },
+      "pistas": [
+        "Cuida los paréntesis de la fórmula.",
+        "round(valor, 2) redondea a 2 decimales."
+      ],
+      "pruebas": [
+        {
+          "tipo": "funcion",
+          "funcion": "pendiente",
+          "args": [
+            3.6,
+            -1.3,
+            8.6,
+            2.5
+          ],
+          "esperado": 0.76
+        },
+        {
+          "tipo": "funcion",
+          "funcion": "pendiente",
+          "args": [
+            0,
+            0,
+            2,
+            4
+          ],
+          "esperado": 2
+        },
+        {
+          "tipo": "programa",
+          "entradas": [
+            "3.6",
+            "-1.3",
+            "8.6",
+            "2.5"
+          ],
+          "salida": [
+            "0.76"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "n3e",
+      "nivel": "n3",
+      "titulo": "Costo del teléfono",
+      "descripcion": "Cada mensaje, mega o minuto cuesta $0.80. Escribe costo_mensual(mensajes, megas, minutos). El programa lee los 3 datos y muestra el costo redondeado a 2 decimales.",
+      "entrada": "Mensajes (entero), megas (decimal) y minutos (entero).",
+      "salida": "El costo con 2 decimales.",
+      "usa": "def costo_mensual(mensajes, megas, minutos):",
+      "ejemplo": {
+        "entradas": [
+          "38",
+          "3.1",
+          "78"
+        ],
+        "salida": [
+          "95.28"
+        ]
+      },
+      "pistas": [
+        "Suma los tres consumos y multiplica por 0.80.",
+        "Muestra round(costo_mensual(...), 2)."
+      ],
+      "pruebas": [
+        {
+          "tipo": "funcion",
+          "funcion": "costo_mensual",
+          "args": [
+            38,
+            3.1,
+            78
+          ],
+          "esperado": 95.28
+        },
+        {
+          "tipo": "funcion",
+          "funcion": "costo_mensual",
+          "args": [
+            10,
+            0,
+            5
+          ],
+          "esperado": 12
+        },
+        {
+          "tipo": "programa",
+          "entradas": [
+            "38",
+            "3.1",
+            "78"
+          ],
+          "salida": [
+            "95.28"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "n3f",
+      "nivel": "n3",
+      "titulo": "Precio con IVA",
+      "descripcion": "Escribe iva(subtotal), que regrese el 16% del subtotal, y total(subtotal), que use iva() para regresar el total. El programa lee el subtotal y muestra el total.",
+      "entrada": "El subtotal (decimal).",
+      "salida": "El total.",
+      "usa": "dos funciones: total() llama a iva()",
+      "ejemplo": {
+        "entradas": [
+          "250"
+        ],
+        "salida": [
+          "290.0"
+        ]
+      },
+      "pistas": [
+        "iva regresa subtotal * 0.16.",
+        "total regresa subtotal + iva(subtotal)."
+      ],
+      "pruebas": [
+        {
+          "tipo": "funcion",
+          "funcion": "iva",
+          "args": [
+            100
+          ],
+          "esperado": 16
+        },
+        {
+          "tipo": "funcion",
+          "funcion": "total",
+          "args": [
+            100
+          ],
+          "esperado": 116
+        },
+        {
+          "tipo": "funcion",
+          "funcion": "total",
+          "args": [
+            250
+          ],
+          "esperado": 290
+        },
+        {
+          "tipo": "programa",
+          "entradas": [
+            "250"
+          ],
+          "salida": [
+            "290.0"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "n4a",
+      "nivel": "n4",
+      "titulo": "Par o impar",
+      "descripcion": "Lee un entero y muestra PAR o IMPAR.",
+      "entrada": "Un entero.",
+      "salida": "PAR o IMPAR.",
+      "ejemplo": {
+        "entradas": [
+          "8"
+        ],
+        "salida": [
+          "PAR"
+        ]
+      },
+      "pistas": [
+        "Un número es par si al dividirlo entre 2 no sobra nada.",
+        "n % 2 == 0 es True cuando n es par."
+      ],
+      "pruebas": [
+        {
+          "tipo": "programa",
+          "entradas": [
+            "8"
+          ],
+          "salida": [
+            "PAR"
+          ]
+        },
+        {
+          "tipo": "programa",
+          "entradas": [
+            "7"
+          ],
+          "salida": [
+            "IMPAR"
+          ]
+        },
+        {
+          "tipo": "programa",
+          "entradas": [
+            "0"
+          ],
+          "salida": [
+            "PAR"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "n4b",
+      "nivel": "n4",
+      "titulo": "Licencia",
+      "descripcion": "Se puede sacar licencia si eres mayor de edad y tienes identificación. Lee la edad y si tiene identificación (s/n).",
+      "entrada": "La edad (entero) y la letra s o n.",
+      "salida": "Si o No.",
+      "ejemplo": {
+        "entradas": [
+          "21",
+          "s"
+        ],
+        "salida": [
+          "Si"
+        ]
+      },
+      "pistas": [
+        "Las dos condiciones deben cumplirse al mismo tiempo: and.",
+        "Mayor de edad es edad >= 18; los textos se comparan con ==, como id == \"s\"."
+      ],
+      "pruebas": [
+        {
+          "tipo": "programa",
+          "entradas": [
+            "21",
+            "s"
+          ],
+          "salida": [
+            "Si"
+          ]
+        },
+        {
+          "tipo": "programa",
+          "entradas": [
+            "17",
+            "s"
+          ],
+          "salida": [
+            "No"
+          ]
+        },
+        {
+          "tipo": "programa",
+          "entradas": [
+            "30",
+            "n"
+          ],
+          "salida": [
+            "No"
+          ]
+        },
+        {
+          "tipo": "programa",
+          "entradas": [
+            "18",
+            "s"
+          ],
+          "salida": [
+            "Si"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "n4c",
+      "nivel": "n4",
+      "titulo": "Mayor de 3",
+      "descripcion": "Lee tres enteros y muestra el mayor. No uses max().",
+      "entrada": "Tres enteros, uno por renglón.",
+      "salida": "El mayor.",
+      "ejemplo": {
+        "entradas": [
+          "17",
+          "12",
+          "15"
+        ],
+        "salida": [
+          "17"
+        ]
+      },
+      "prohibido": [
+        {
+          "texto": "max(",
+          "mensaje": "Usaste max(): resuélvelo con if."
+        }
+      ],
+      "pistas": [
+        "x es el mayor si x >= y and x >= z.",
+        "Usa if, elif y else: si no es x ni y, es z."
+      ],
+      "pruebas": [
+        {
+          "tipo": "programa",
+          "entradas": [
+            "17",
+            "12",
+            "15"
+          ],
+          "salida": [
+            "17"
+          ]
+        },
+        {
+          "tipo": "programa",
+          "entradas": [
+            "1",
+            "9",
+            "4"
+          ],
+          "salida": [
+            "9"
+          ]
+        },
+        {
+          "tipo": "programa",
+          "entradas": [
+            "3",
+            "5",
+            "8"
+          ],
+          "salida": [
+            "8"
+          ]
+        },
+        {
+          "tipo": "programa",
+          "entradas": [
+            "6",
+            "6",
+            "2"
+          ],
+          "salida": [
+            "6"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "n4d",
+      "nivel": "n4",
+      "titulo": "Índice de masa corporal",
+      "descripcion": "Lee peso (kg) y altura (m), calcula indice = peso / altura ** 2 y muestra su descripción.",
+      "entrada": "Peso y altura (decimales).",
+      "salida": [
+        "Menor que 20: PESO BAJO",
+        "Menor que 25: NORMAL",
+        "Menor que 30: SOBREPESO",
+        "Menor que 40: OBESIDAD",
+        "40 o más: OBESIDAD MORBIDA"
+      ],
+      "ejemplo": {
+        "entradas": [
+          "53",
+          "1.66"
+        ],
+        "salida": [
+          "PESO BAJO"
+        ]
+      },
+      "pistas": [
+        "Son 5 casos: if, tres elif y else.",
+        "Si vas de menor a mayor, cada elif solo necesita una comparación."
+      ],
+      "pruebas": [
+        {
+          "tipo": "programa",
+          "entradas": [
+            "53",
+            "1.66"
+          ],
+          "salida": [
+            "PESO BAJO"
+          ]
+        },
+        {
+          "tipo": "programa",
+          "entradas": [
+            "70",
+            "1.75"
+          ],
+          "salida": [
+            "NORMAL"
+          ]
+        },
+        {
+          "tipo": "programa",
+          "entradas": [
+            "80",
+            "1.70"
+          ],
+          "salida": [
+            "SOBREPESO"
+          ]
+        },
+        {
+          "tipo": "programa",
+          "entradas": [
+            "100",
+            "1.70"
+          ],
+          "salida": [
+            "OBESIDAD"
+          ]
+        },
+        {
+          "tipo": "programa",
+          "entradas": [
+            "130",
+            "1.70"
+          ],
+          "salida": [
+            "OBESIDAD MORBIDA"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "n4e",
+      "nivel": "n4",
+      "titulo": "Boleto de cine",
+      "descripcion": "El boleto cuesta $80. Los miércoles todos pagan la mitad. Otros días, quien tiene 60 años o más paga 30% menos. Lee el día (minúsculas, sin acento) y la edad.",
+      "entrada": "El día y la edad (entero).",
+      "salida": "El total a pagar.",
+      "ejemplo": {
+        "entradas": [
+          "lunes",
+          "65"
+        ],
+        "salida": [
+          "56.0"
+        ]
+      },
+      "pistas": [
+        "El miércoles gana sobre la edad: revísalo primero.",
+        "30% menos es 80 * 0.70."
+      ],
+      "pruebas": [
+        {
+          "tipo": "programa",
+          "entradas": [
+            "miercoles",
+            "30"
+          ],
+          "salida": [
+            "40.0"
+          ]
+        },
+        {
+          "tipo": "programa",
+          "entradas": [
+            "miercoles",
+            "70"
+          ],
+          "salida": [
+            "40.0"
+          ]
+        },
+        {
+          "tipo": "programa",
+          "entradas": [
+            "lunes",
+            "65"
+          ],
+          "salida": [
+            "56.0"
+          ]
+        },
+        {
+          "tipo": "programa",
+          "entradas": [
+            "viernes",
+            "20"
+          ],
+          "salida": [
+            "80"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "n5a",
+      "nivel": "n5",
+      "titulo": "Año bisiesto",
+      "descripcion": "Un año es bisiesto si es divisible entre 4, excepto los divisibles entre 100, a menos que también lo sean entre 400.",
+      "entrada": "Un año (entero).",
+      "salida": "True o False.",
+      "ejemplo": {
+        "entradas": [
+          "2012"
+        ],
+        "salida": [
+          "True"
+        ]
+      },
+      "pistas": [
+        "\"Divisible entre 4\" es año % 4 == 0.",
+        "Una forma: (año % 4 == 0 and año % 100 != 0) or año % 400 == 0."
+      ],
+      "pruebas": [
+        {
+          "tipo": "programa",
+          "entradas": [
+            "2012"
+          ],
+          "salida": [
+            "True"
+          ]
+        },
+        {
+          "tipo": "programa",
+          "entradas": [
+            "1995"
+          ],
+          "salida": [
+            "False"
+          ]
+        },
+        {
+          "tipo": "programa",
+          "entradas": [
+            "1900"
+          ],
+          "salida": [
+            "False"
+          ]
+        },
+        {
+          "tipo": "programa",
+          "entradas": [
+            "2000"
+          ],
+          "salida": [
+            "True"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "n5b",
+      "nivel": "n5",
       "titulo": "Tipo de triángulo",
-      "descripcion": "Escribe un programa que pida los tres lados de un triángulo y muestre si es equilátero (tres lados iguales), isósceles (exactamente dos lados iguales) o escaleno (los tres distintos).",
-      "requisitos": [
-        "Declara tipo_triangulo(a, b, c), que regrese el texto \"equilatero\", \"isosceles\" o \"escaleno\".",
-        "main() pide los lados y muestra el tipo."
-      ],
-      "entrada": "Los tres lados del triángulo.",
-      "salida": "El tipo de triángulo.",
-      "ejemplo": { "entradas": ["5", "5", "8"], "texto": "Lado a: 5\nLado b: 5\nLado c: 8\nEl triangulo es isosceles" },
-      "pruebas": [
-        { "tipo": "funcion", "funcion": "tipo_triangulo", "args": [3, 3, 3], "esperado": "equilatero" },
-        { "tipo": "funcion", "funcion": "tipo_triangulo", "args": [5, 5, 8], "esperado": "isosceles" },
-        { "tipo": "funcion", "funcion": "tipo_triangulo", "args": [5, 8, 5], "esperado": "isosceles" },
-        { "tipo": "funcion", "funcion": "tipo_triangulo", "args": [8, 5, 5], "esperado": "isosceles" },
-        { "tipo": "funcion", "funcion": "tipo_triangulo", "args": [3, 4, 5], "esperado": "escaleno" },
-        { "tipo": "programa", "entradas": ["7", "7", "7"], "contiene": ["equilatero"] }
-      ],
+      "descripcion": "Lee tres lados enteros. Si no forman triángulo, muestra NO ES TRIANGULO. Si lo forman, muestra EQUILATERO, ISOSCELES o ESCALENO.",
+      "entrada": "Tres enteros.",
+      "salida": "Forman triángulo si todos son mayores que 0 y cada par suma más que el tercero.",
+      "ejemplo": {
+        "entradas": [
+          "5",
+          "5",
+          "5"
+        ],
+        "salida": [
+          "EQUILATERO"
+        ]
+      },
       "pistas": [
-        "Empieza por el caso más específico: los tres lados iguales.",
-        "Para exigir dos condiciones al mismo tiempo usa and; para «una u otra» usa or.",
-        "Si no son los tres iguales, hay tres parejas que podrían ser iguales: a con b, a con c y b con c. ¿Revisas las tres?"
+        "Primero valida: x > 0 and y > 0 and z > 0 and x + y > z and x + z > y and y + z > x.",
+        "Después: tres iguales → EQUILATERO; algún par igual (or) → ISOSCELES; si no, ESCALENO."
+      ],
+      "pruebas": [
+        {
+          "tipo": "programa",
+          "entradas": [
+            "5",
+            "5",
+            "5"
+          ],
+          "salida": [
+            "EQUILATERO"
+          ]
+        },
+        {
+          "tipo": "programa",
+          "entradas": [
+            "5",
+            "8",
+            "5"
+          ],
+          "salida": [
+            "ISOSCELES"
+          ]
+        },
+        {
+          "tipo": "programa",
+          "entradas": [
+            "3",
+            "4",
+            "5"
+          ],
+          "salida": [
+            "ESCALENO"
+          ]
+        },
+        {
+          "tipo": "programa",
+          "entradas": [
+            "1",
+            "2",
+            "5"
+          ],
+          "salida": [
+            "NO ES TRIANGULO"
+          ]
+        },
+        {
+          "tipo": "programa",
+          "entradas": [
+            "0",
+            "3",
+            "3"
+          ],
+          "salida": [
+            "NO ES TRIANGULO"
+          ]
+        }
       ]
     },
     {
-      "id": "e1",
-      "nivel": "examen",
-      "titulo": "Descuento por membresía",
-      "descripcion": "Una tienda aplica 15% de descuento sobre el monto de la compra a los clientes que tienen membresía. Escribe un programa que pida el monto de la compra y si el cliente tiene membresía (si/no), y que muestre el subtotal, el descuento y el total a pagar con dos decimales. Si el monto es menor o igual a cero, muestra un mensaje que empiece con \"Error\".",
-      "requisitos": [
-        "Declara calcular_descuento(monto, membresia), que regrese el descuento en pesos (0 si no tiene membresía).",
-        "Organiza el programa con main(): pide los datos, valida, calcula y muestra.",
-        "Reto opcional: rechaza también las respuestas de membresía distintas de si y no."
-      ],
-      "entrada": "Monto de la compra y si tiene membresía (si/no).",
-      "salida": "Subtotal, descuento y total con dos decimales, o un mensaje de error.",
-      "ejemplo": { "entradas": ["200", "si"], "texto": "Monto: 200\nTiene membresia (si/no): si\nSubtotal: $200.00\nDescuento: $30.00\nTotal: $170.00" },
-      "pruebas": [
-        { "tipo": "funcion", "funcion": "calcular_descuento", "args": [200, "si"], "esperado": 30 },
-        { "tipo": "funcion", "funcion": "calcular_descuento", "args": [200, "no"], "esperado": 0 },
-        { "tipo": "funcion", "funcion": "calcular_descuento", "args": [99.9, "si"], "esperado": 14.985 },
-        { "tipo": "programa", "entradas": ["480", "si"], "contiene": [480, 72, 408] },
-        { "tipo": "programa", "entradas": ["350", "no"], "contiene": [350] },
-        { "tipo": "programa", "entradas": ["0", "si"], "contiene": ["Error"], "descripcion": "Con monto 0 se muestra un mensaje de error" },
-        { "tipo": "programa", "entradas": ["-50", "no"], "contiene": ["Error"], "descripcion": "Con monto -50 se muestra un mensaje de error" }
+      "id": "n5c",
+      "nivel": "n5",
+      "titulo": "Ordena 3 números",
+      "descripcion": "Lee tres enteros y muéstralos de menor a mayor. No uses sort(), min() ni max().",
+      "entrada": "Tres enteros.",
+      "salida": "Los tres números de menor a mayor, uno por renglón.",
+      "ejemplo": {
+        "entradas": [
+          "5",
+          "1",
+          "12"
+        ],
+        "salida": [
+          "1",
+          "5",
+          "12"
+        ]
+      },
+      "prohibido": [
+        {
+          "texto": "sort",
+          "mensaje": "Usaste sort: resuélvelo con if."
+        },
+        {
+          "texto": "min(",
+          "mensaje": "Usaste min(): resuélvelo con if."
+        },
+        {
+          "texto": "max(",
+          "mensaje": "Usaste max(): resuélvelo con if."
+        }
       ],
       "pistas": [
-        "El descuento es el 15% del monto. ¿Cómo se escribe 15% como número para multiplicar?",
-        "La función decide según membresia: compara membresia == \"si\" en un if y regresa el descuento o 0.",
-        "En main(), valida primero el monto con if/else. Dentro del else pide la membresía, calcula y muestra; el total es subtotal - descuento."
+        "Hay 6 órdenes posibles de x, y, z.",
+        "Otra forma: encuentra el menor, luego el mayor; el de en medio es el que sobra."
+      ],
+      "pruebas": [
+        {
+          "tipo": "programa",
+          "entradas": [
+            "5",
+            "1",
+            "12"
+          ],
+          "salida": [
+            "1",
+            "5",
+            "12"
+          ]
+        },
+        {
+          "tipo": "programa",
+          "entradas": [
+            "3",
+            "2",
+            "1"
+          ],
+          "salida": [
+            "1",
+            "2",
+            "3"
+          ]
+        },
+        {
+          "tipo": "programa",
+          "entradas": [
+            "7",
+            "7",
+            "2"
+          ],
+          "salida": [
+            "2",
+            "7",
+            "7"
+          ]
+        },
+        {
+          "tipo": "programa",
+          "entradas": [
+            "9",
+            "4",
+            "6"
+          ],
+          "salida": [
+            "4",
+            "6",
+            "9"
+          ]
+        }
       ]
     },
     {
-      "id": "e2",
-      "nivel": "examen",
+      "id": "n5d",
+      "nivel": "n5",
+      "titulo": "Estacionamiento",
+      "descripcion": "Cuesta $20 la primera hora y $15 cada hora extra; una fracción de hora se cobra completa. Lee los minutos y muestra el total. Si los minutos son 0 o menos, muestra Error.",
+      "entrada": "Minutos (entero).",
+      "salida": "El total, o Error.",
+      "usa": "math.ceil() e if",
+      "ejemplo": {
+        "entradas": [
+          "150"
+        ],
+        "salida": [
+          "50"
+        ]
+      },
+      "pistas": [
+        "Horas cobradas = math.ceil(minutos / 60).",
+        "Total = 20 + 15 * (horas - 1). Valida primero con if minutos <= 0."
+      ],
+      "pruebas": [
+        {
+          "tipo": "programa",
+          "entradas": [
+            "150"
+          ],
+          "salida": [
+            "50"
+          ]
+        },
+        {
+          "tipo": "programa",
+          "entradas": [
+            "45"
+          ],
+          "salida": [
+            "20"
+          ]
+        },
+        {
+          "tipo": "programa",
+          "entradas": [
+            "61"
+          ],
+          "salida": [
+            "35"
+          ]
+        },
+        {
+          "tipo": "programa",
+          "entradas": [
+            "0"
+          ],
+          "contiene": [
+            "Error"
+          ],
+          "descripcion": "Entradas: 0 → Error"
+        }
+      ]
+    },
+    {
+      "id": "n5e",
+      "nivel": "n5",
       "titulo": "Beca escolar",
-      "descripcion": "Escribe un programa que pida el promedio de un alumno y su número de materias reprobadas, y que muestre el porcentaje de beca que le corresponde. Obtiene beca del 100% quien tenga promedio mayor o igual a 9.5 y ninguna materia reprobada; beca del 50% quien tenga promedio mayor o igual a 9.0 (pero menor que 9.5) y ninguna reprobada; en cualquier otro caso no obtiene beca. Si el promedio está fuera del rango de 0 a 10, muestra un mensaje que empiece con \"Error\".",
-      "requisitos": [
-        "Declara porcentaje_beca(promedio, reprobadas), que regrese 100, 50 o 0.",
-        "Valida el promedio en main() antes de llamar a la función."
-      ],
-      "entrada": "Promedio (0 a 10) y número de materias reprobadas.",
-      "salida": "El porcentaje de beca, o un mensaje de error.",
-      "ejemplo": { "entradas": ["9.6", "0"], "texto": "Promedio: 9.6\nMaterias reprobadas: 0\nBeca: 100%" },
-      "pruebas": [
-        { "tipo": "funcion", "funcion": "porcentaje_beca", "args": [9.7, 0], "esperado": 100 },
-        { "tipo": "funcion", "funcion": "porcentaje_beca", "args": [9.5, 0], "esperado": 100 },
-        { "tipo": "funcion", "funcion": "porcentaje_beca", "args": [9.2, 0], "esperado": 50 },
-        { "tipo": "funcion", "funcion": "porcentaje_beca", "args": [9.0, 0], "esperado": 50 },
-        { "tipo": "funcion", "funcion": "porcentaje_beca", "args": [9.8, 1], "esperado": 0 },
-        { "tipo": "funcion", "funcion": "porcentaje_beca", "args": [8.9, 0], "esperado": 0 },
-        { "tipo": "programa", "entradas": ["9.3", "0"], "contiene": [50] },
-        { "tipo": "programa", "entradas": ["11", "0"], "contiene": ["Error"], "descripcion": "Con promedio 11 se muestra un mensaje de error" },
-        { "tipo": "programa", "entradas": ["-1", "0"], "contiene": ["Error"], "descripcion": "Con promedio -1 se muestra un mensaje de error" }
-      ],
+      "descripcion": "Escribe porcentaje_beca(promedio, reprobadas): 100 si el promedio es 9.5 o más y no reprobó nada; 50 si es 9.0 o más y no reprobó nada; si no, 0. El programa lee los datos y muestra el porcentaje, o Error si el promedio no está entre 0 y 10.",
+      "entrada": "Promedio (decimal) y materias reprobadas (entero).",
+      "salida": "100, 50, 0 o Error.",
+      "usa": "def porcentaje_beca(promedio, reprobadas):",
+      "ejemplo": {
+        "entradas": [
+          "9.6",
+          "0"
+        ],
+        "salida": [
+          "100"
+        ]
+      },
       "pistas": [
-        "Hay tres resultados posibles (100, 50 y 0): piensa en if, elif y else.",
-        "Cada beca exige dos cosas a la vez: un promedio suficiente y cero reprobadas. ¿Qué operador une dos condiciones que deben cumplirse juntas?",
-        "Revisa primero la beca más alta. Si esa condición falla, el elif del 50% solo necesita revisar promedio >= 9.0. Para la validación: el promedio es inválido si es menor que 0 o mayor que 10."
-      ]
-    },
-    {
-      "id": "e3",
-      "nivel": "examen",
-      "titulo": "Promoción en el cine",
-      "descripcion": "Un cine cobra $80.00 por entrada. Los miércoles todas las entradas tienen 50% de descuento, sin importar la edad. El resto de la semana, quien tenga 60 años o más tiene 30% de descuento y los demás pagan la tarifa completa. Escribe un programa que pida el día (en minúsculas y sin acento, por ejemplo miercoles) y la edad, y que muestre el descuento y el total a pagar con dos decimales. Si la edad está fuera del rango de 0 a 120, muestra un mensaje que empiece con \"Error\".",
-      "requisitos": [
-        "Declara porcentaje_descuento(dia, edad), que regrese 50, 30 o 0.",
-        "Declara total_a_pagar(precio, porcentaje), que regrese el precio con el descuento aplicado.",
-        "Reto opcional: rechaza también los días que no existen."
+        "Cada beca pide dos cosas a la vez: and.",
+        "Revisa primero la beca de 100; el elif de 50 ya sabe que el promedio es menor que 9.5."
       ],
-      "entrada": "Día de la semana y edad del cliente.",
-      "salida": "Descuento y total a pagar con dos decimales, o un mensaje de error.",
-      "ejemplo": { "entradas": ["lunes", "65"], "texto": "Dia: lunes\nEdad: 65\nDescuento: $24.00\nTotal: $56.00" },
       "pruebas": [
-        { "tipo": "funcion", "funcion": "porcentaje_descuento", "args": ["miercoles", 20], "esperado": 50 },
-        { "tipo": "funcion", "funcion": "porcentaje_descuento", "args": ["miercoles", 70], "esperado": 50 },
-        { "tipo": "funcion", "funcion": "porcentaje_descuento", "args": ["lunes", 65], "esperado": 30 },
-        { "tipo": "funcion", "funcion": "porcentaje_descuento", "args": ["viernes", 60], "esperado": 30 },
-        { "tipo": "funcion", "funcion": "porcentaje_descuento", "args": ["sabado", 59], "esperado": 0 },
-        { "tipo": "funcion", "funcion": "total_a_pagar", "args": [80, 50], "esperado": 40 },
-        { "tipo": "funcion", "funcion": "total_a_pagar", "args": [80, 30], "esperado": 56 },
-        { "tipo": "funcion", "funcion": "total_a_pagar", "args": [80, 0], "esperado": 80 },
-        { "tipo": "programa", "entradas": ["miercoles", "30"], "contiene": [40] },
-        { "tipo": "programa", "entradas": ["domingo", "25"], "contiene": [80] },
-        { "tipo": "programa", "entradas": ["jueves", "130"], "contiene": ["Error"], "descripcion": "Con edad 130 se muestra un mensaje de error" }
-      ],
-      "pistas": [
-        "El miércoles gana sobre la edad: ¿qué condición conviene revisar primero?",
-        "Un 30% de descuento sobre 80 son 80 * 30 / 100 pesos; el total es el precio menos ese descuento.",
-        "Los textos se comparan con ==, por ejemplo dia == \"miercoles\". Debe estar escrito exactamente igual que como lo captura el usuario."
-      ]
-    },
-    {
-      "id": "e4",
-      "nivel": "examen",
-      "titulo": "Envío de paquetes",
-      "descripcion": "Una paquetería cobra $50.00 fijos más $12.00 por kilo, y los kilos se cobran completos (2.3 kg se cobran como 3 kg). El envío exprés cuesta 30% más sobre ese total. Escribe un programa que pida el peso del paquete y si el envío es exprés (si/no), y que muestre los kilos cobrados y el costo con dos decimales. Si el peso es menor o igual a cero o mayor que 30 kg, muestra un mensaje que empiece con \"Error\".",
-      "requisitos": [
-        "Declara kilos_cobrados(peso) usando math.ceil().",
-        "Declara costo_envio(kilos, expres), que regrese el costo final.",
-        "Valida el peso en main() antes de preguntar si es exprés."
-      ],
-      "entrada": "Peso del paquete en kg y si es exprés (si/no).",
-      "salida": "Kilos cobrados y costo del envío con dos decimales, o un mensaje de error.",
-      "ejemplo": { "entradas": ["2.3", "si"], "texto": "Peso en kg: 2.3\nEnvio expres (si/no): si\nKilos cobrados: 3\nCosto: $111.80" },
-      "pruebas": [
-        { "tipo": "funcion", "funcion": "kilos_cobrados", "args": [2.3], "esperado": 3 },
-        { "tipo": "funcion", "funcion": "kilos_cobrados", "args": [5], "esperado": 5 },
-        { "tipo": "funcion", "funcion": "kilos_cobrados", "args": [0.2], "esperado": 1 },
-        { "tipo": "funcion", "funcion": "costo_envio", "args": [3, "no"], "esperado": 86 },
-        { "tipo": "funcion", "funcion": "costo_envio", "args": [3, "si"], "esperado": 111.8 },
-        { "tipo": "funcion", "funcion": "costo_envio", "args": [10, "si"], "esperado": 221 },
-        { "tipo": "programa", "entradas": ["4.5", "no"], "contiene": [5, 110] },
-        { "tipo": "programa", "entradas": ["31", "no"], "contiene": ["Error"], "descripcion": "Con 31 kg se muestra un mensaje de error" },
-        { "tipo": "programa", "entradas": ["0", "si"], "contiene": ["Error"], "descripcion": "Con 0 kg se muestra un mensaje de error" }
-      ],
-      "pistas": [
-        "Divide el cálculo: primero los kilos cobrados, luego el costo normal y al final el recargo exprés.",
-        "Un 30% más se puede calcular como costo * 1.30, o como costo + costo * 0.30.",
-        "El peso es válido si es mayor que 0 y menor o igual a 30. Para detectar el error piensa al revés: peso <= 0 o peso > 30."
+        {
+          "tipo": "funcion",
+          "funcion": "porcentaje_beca",
+          "args": [
+            9.5,
+            0
+          ],
+          "esperado": 100
+        },
+        {
+          "tipo": "funcion",
+          "funcion": "porcentaje_beca",
+          "args": [
+            9.2,
+            0
+          ],
+          "esperado": 50
+        },
+        {
+          "tipo": "funcion",
+          "funcion": "porcentaje_beca",
+          "args": [
+            9.8,
+            1
+          ],
+          "esperado": 0
+        },
+        {
+          "tipo": "funcion",
+          "funcion": "porcentaje_beca",
+          "args": [
+            8.9,
+            0
+          ],
+          "esperado": 0
+        },
+        {
+          "tipo": "programa",
+          "entradas": [
+            "9.6",
+            "0"
+          ],
+          "salida": [
+            "100"
+          ]
+        },
+        {
+          "tipo": "programa",
+          "entradas": [
+            "11",
+            "0"
+          ],
+          "contiene": [
+            "Error"
+          ],
+          "descripcion": "Entradas: 11, 0 → Error"
+        }
       ]
     }
   ]
