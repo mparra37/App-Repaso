@@ -4,5 +4,5 @@
 // Si se deja vacío, la app funciona sin IA: los alumnos escriben su código en el
 // editor y las pruebas automáticas y las pistas siguen funcionando.
 window.REPASO_CONFIG = {
-  workerUrl: "",
+  workerUrl: "https://repaso-tc1037.repaso-tc1037-worker.workers.dev",
 };

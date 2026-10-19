@@ -7,7 +7,7 @@ compatibility_flags = ["nodejs_compat"]
 # Modelo de Claude. Haiku 5.5 es el más barato; si lee mal la letra, cambia a "claude-opus-5-5".
 MODELO = "claude-haiku-5-5"
 # Dirección de tu GitHub Pages (sin la ruta del repositorio y sin diagonal final). Varias se separan con comas.
-ORIGENES_PERMITIDOS = "https://TU-USUARIO.github.io"
+ORIGENES_PERMITIDOS = "https://mparra37.github.io"
 # Solicitudes permitidas por alumno (navegador) cada 10 minutos.
 LIMITE_POR_ALUMNO = "40"
 

@@ -148,8 +148,11 @@ async function prepararImagen(archivo) {
   const url = URL.createObjectURL(archivo);
   try {
     const imagen = new Image();
-    imagen.src = url;
-    await imagen.decode();
+    await new Promise((resolver, rechazar) => {
+      imagen.onload = resolver;
+      imagen.onerror = rechazar;
+      imagen.src = url;
+    });
     const lado = 1600;
     const escala = Math.min(1, lado / Math.max(imagen.naturalWidth, imagen.naturalHeight));
     const lienzo = document.createElement("canvas");
