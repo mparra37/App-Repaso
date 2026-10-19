@@ -395,7 +395,11 @@ function vistaQuiz(numero) {
   const pregunta = datos.quiz[numero - 1];
   const opciones = el("div", { class: "opciones", role: "group", "aria-label": "Opciones" });
   const explicacion = el("div", { "aria-live": "polite" });
-  const siguiente = boton(numero === total ? "Terminar →" : "Siguiente →", () => ir(numero === total ? "#/quiz/fin" : `#/quiz/${numero + 1}`));
+  const principal = boton("Enviar", () => {
+    if (estado.quiz[pregunta.id] === undefined) enviar();
+    else ir(numero === total ? "#/quiz/fin" : `#/quiz/${numero + 1}`);
+  });
+  let seleccionada = null;
 
   function pintar() {
     const elegida = estado.quiz[pregunta.id];
@@ -407,9 +411,19 @@ function vistaQuiz(numero) {
         if (respondida && i === pregunta.correcta) clase += " correcta";
         else if (respondida && i === elegida) clase += " incorrecta";
         else if (respondida) clase += " apagada";
+        else if (i === seleccionada) clase += " seleccionada";
         return el(
           "button",
-          { type: "button", class: clase, disabled: respondida, onclick: () => responder(i) },
+          {
+            type: "button",
+            class: clase,
+            disabled: respondida,
+            "aria-pressed": !respondida && i === seleccionada ? "true" : "false",
+            onclick: () => {
+              seleccionada = i;
+              pintar();
+            },
+          },
           el("span", { class: "opcion__letra" }, "ABCD"[i]),
           el("span", {}, texto),
         );
@@ -421,15 +435,19 @@ function vistaQuiz(numero) {
         explicacion,
         el("div", { class: `explicacion ${acerto ? "ok" : "mal"}` }, el("strong", {}, acerto ? "¡Correcto! +1 ★" : "No es esa"), pregunta.explicacion),
       );
+      principal.textContent = numero === total ? "Terminar →" : "Siguiente →";
+      principal.disabled = false;
+    } else {
+      principal.textContent = "Enviar";
+      principal.disabled = seleccionada === null;
     }
-    siguiente.disabled = !respondida;
   }
 
-  function responder(indice) {
-    if (estado.quiz[pregunta.id] !== undefined) return;
-    estado.quiz[pregunta.id] = indice;
+  function enviar() {
+    if (seleccionada === null || estado.quiz[pregunta.id] !== undefined) return;
+    estado.quiz[pregunta.id] = seleccionada;
     guardarEstado();
-    if (indice === pregunta.correcta) celebrar(1);
+    if (seleccionada === pregunta.correcta) celebrar(1);
     pintar();
     explicacion.scrollIntoView({ behavior: "smooth", block: "nearest" });
   }
@@ -446,7 +464,7 @@ function vistaQuiz(numero) {
     pregunta.codigo ? el("pre", { class: "codigo" }, pregunta.codigo) : null,
     opciones,
     explicacion,
-    barraAcciones(boton("←", () => ir(numero > 1 ? `#/quiz/${numero - 1}` : "#/"), "boton--claro boton--icono"), siguiente),
+    barraAcciones(boton("←", () => ir(numero > 1 ? `#/quiz/${numero - 1}` : "#/"), "boton--claro boton--icono"), principal),
   ];
 }
 
@@ -567,20 +585,28 @@ function pasoCodigo(ejercicio, cambiarPaso) {
     "boton--enlace",
   );
 
-  const entradaFoto = el("input", { type: "file", accept: "image/*", class: "oculto", id: `foto-${ejercicio.id}` });
-  const vistaPrevia = el("img", { alt: "Tu foto", hidden: true });
+  const entradaCamara = el("input", { type: "file", accept: "image/*", capture: "environment", class: "oculto", id: `camara-${ejercicio.id}` });
+  const entradaGaleria = el("input", { type: "file", accept: "image/*", class: "oculto", id: `galeria-${ejercicio.id}` });
+  const vistaPrevia = el("img", { class: "foto__previa", alt: "Tu foto", hidden: true });
   const tarjetaFoto = el(
-    "label",
-    { class: "foto", for: entradaFoto.id },
-    el("span", { class: "foto__icono", "aria-hidden": "true" }, "📷"),
-    el("strong", {}, "Tomar foto de tu hoja"),
-    el("span", { class: "texto-suave" }, "De frente, con buena luz"),
+    "div",
+    { class: "foto" },
+    el(
+      "div",
+      { class: "foto__botones" },
+      el("label", { class: "boton", for: entradaCamara.id }, "📷 Cámara"),
+      el("label", { class: "boton boton--claro", for: entradaGaleria.id }, "🖼️ Galería"),
+    ),
+    el("span", { class: "texto-suave" }, "Foto de tu hoja, de frente y con buena luz"),
     vistaPrevia,
+    entradaCamara,
+    entradaGaleria,
   );
 
-  entradaFoto.addEventListener("change", async () => {
-    const archivo = entradaFoto.files[0];
-    entradaFoto.value = "";
+  async function leerFoto(evento) {
+    const entrada = evento.currentTarget;
+    const archivo = entrada.files[0];
+    entrada.value = "";
     if (!archivo) return;
     revisar.disabled = true;
     estadoFoto.textContent = "Leyendo tu letra…";
@@ -606,7 +632,9 @@ function pasoCodigo(ejercicio, cambiarPaso) {
     } finally {
       revisar.disabled = false;
     }
-  });
+  }
+  entradaCamara.addEventListener("change", leerFoto);
+  entradaGaleria.addEventListener("change", leerFoto);
 
   async function revisarCodigo() {
     const codigo = editor.valor;
@@ -639,7 +667,7 @@ function pasoCodigo(ejercicio, cambiarPaso) {
 
   return [
     el("h2", {}, CON_IA ? "Sube tu solución" : "Escribe tu solución"),
-    CON_IA ? [tarjetaFoto, entradaFoto] : null,
+    CON_IA ? tarjetaFoto : null,
     estadoFoto,
     avisoLectura,
     contenedorEditor,
@@ -651,11 +679,11 @@ function pasoCodigo(ejercicio, cambiarPaso) {
 function pasoResultado(ejercicio, cambiarPaso, posterior) {
   const { reporte, codigo, pasa, ganados } = resultados[ejercicio.id];
   const siguiente = () => ir(posterior ? `#/ej/${posterior.id}` : "#/");
-  const cajaIA = el("section", { class: "ia", hidden: true, "aria-live": "polite" });
+  const cajaRetro = el("section", { class: "retro", hidden: true, "aria-live": "polite" });
 
   async function pedirRetro() {
-    cajaIA.hidden = false;
-    reemplazar(cajaIA, el("p", { class: "texto-suave" }, "La IA está revisando tu código…"));
+    cajaRetro.hidden = false;
+    reemplazar(cajaRetro, el("p", { class: "texto-suave" }, "Preparando tu retro…"));
     try {
       const retro = await llamarServidor("/retro", {
         problema: { titulo: ejercicio.titulo, descripcion: ejercicio.descripcion, requisitos: [ejercicio.entrada, [ejercicio.salida].flat().join("; "), ejercicio.usa].filter(Boolean) },
@@ -667,14 +695,14 @@ function pasoResultado(ejercicio, cambiarPaso, posterior) {
         },
       });
       reemplazar(
-        cajaIA,
-        el("strong", {}, "Comentarios"),
+        cajaRetro,
+        el("strong", {}, "Retro"),
         retro.resumen ? el("p", {}, retro.resumen) : null,
-        retro.observaciones?.length ? el("ul", {}, retro.observaciones.map((o) => el("li", {}, o))) : null,
+        retro.observaciones?.[0] ? el("p", {}, retro.observaciones[0]) : null,
         retro.pregunta_guia ? el("p", { class: "pregunta-guia" }, `🤔 ${retro.pregunta_guia}`) : null,
       );
     } catch (error) {
-      reemplazar(cajaIA, el("p", { class: "texto-suave" }, error.message), boton("Reintentar", pedirRetro, "boton--enlace"));
+      reemplazar(cajaRetro, el("p", { class: "texto-suave" }, error.message), boton("Reintentar", pedirRetro, "boton--enlace"));
     }
   }
 
@@ -688,8 +716,8 @@ function pasoResultado(ejercicio, cambiarPaso, posterior) {
         el("h1", {}, "¡Correcto!"),
         el("p", { class: "resultado__puntos" }, yaTenia ? "Ya lo tenías resuelto" : `+${ganados} ★`),
       ),
-      cajaIA,
-      CON_IA ? boton("Ver comentarios de la IA", (evento) => { evento.currentTarget.remove(); pedirRetro(); }, "boton--enlace") : null,
+      cajaRetro,
+      CON_IA ? boton("Ver retro", (evento) => { evento.currentTarget.remove(); pedirRetro(); }, "boton--enlace") : null,
       barraAcciones(boton(posterior ? "Siguiente ejercicio →" : "Volver al inicio", siguiente)),
     ].flat();
   }
@@ -719,10 +747,10 @@ function pasoResultado(ejercicio, cambiarPaso, posterior) {
       ? el(
           "ul",
           { class: "casos" },
-          fallidas.slice(0, 3).map((p) => el("li", { class: "mal" }, el("strong", {}, p.descripcion), el("span", {}, p.detalle))),
+          fallidas.slice(0, 2).map((p) => el("li", { class: "mal" }, el("strong", {}, p.descripcion), el("span", {}, p.detalle))),
         )
       : null,
-    cajaIA,
+    cajaRetro,
     reporte.consola
       ? el("details", { class: "consola" }, el("summary", {}, "Ver lo que imprimió tu programa"), el("pre", { class: "codigo" }, reporte.consola))
       : null,
