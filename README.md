@@ -171,10 +171,11 @@ Si algo falla, ejecuta `npx wrangler tail` en la carpeta `worker` mientras repit
 
 ## Cómo usarlo en la sesión (sugerencia)
 
-1. **Arranque:** que todos pulsen «Reiniciar puntos» en la pantalla de inicio (si ya la habían abierto).
+1. **Arranque:** al abrir la app, cada alumno escribe su nombre y matrícula (no se validan) y ve las instrucciones. Si ya la habían abierto antes, que pulsen «Reiniciar puntos» en la pantalla de inicio.
 2. **10 min, calentamiento** individual desde el celular.
 3. **Juego, 30–40 min:** resuelven ejercicios en papel en el orden que quieran; gana quien tenga más ★ al terminar el tiempo (el marcador está en la pantalla de inicio y arriba a la derecha). Pide que tomen la foto **sin nombre ni matrícula** en la hoja: la imagen se envía a la API de Claude.
-4. Cierre: comenta los errores que más viste (`print` en lugar de `return`, `floor` en lugar de `ceil`, olvidar convertir el `input()`, `=` en lugar de `==`).
+4. **Entrega:** al terminar el tiempo, cada alumno pulsa «🏁 Mi resultado» (nombre, matrícula, ★ totales, desglose por nivel, fecha y hora), toma captura de pantalla y la sube a Canvas.
+5. Cierre: comenta los errores que más viste (`print` en lugar de `return`, `floor` en lugar de `ceil`, olvidar convertir el `input()`, `=` en lugar de `==`).
 
 Cosas que conviene decirles:
 

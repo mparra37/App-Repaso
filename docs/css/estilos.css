@@ -210,7 +210,7 @@ code, pre, textarea { font-family: var(--mono); }
 .fila__texto span { color: var(--suave); font-size: 0.88rem; }
 .fila__avance { font-size: 0.9rem; color: var(--suave); font-variant-numeric: tabular-nums; }
 .fila.completa .fila__numero { background: var(--ok); color: #fff; }
-.pie-inicio { display: flex; justify-content: center; }
+.pie-inicio { display: flex; justify-content: center; gap: 24px; }
 
 /* ---------- quiz ---------- */
 
@@ -396,3 +396,40 @@ details.consola .codigo { margin-top: 8px; }
 .lista-salida { margin: 0; padding-left: 20px; }
 .opcion.seleccionada { border-color: var(--acento); background: var(--acento-suave); }
 .opcion.seleccionada .opcion__letra { background: var(--acento); color: var(--acento-texto); }
+
+/* ---------- registro y resultado ---------- */
+
+.registro { display: grid; gap: 14px; }
+.campo { display: grid; gap: 6px; }
+.campo span { font-size: 0.85rem; font-weight: 600; color: var(--suave); }
+.campo input {
+  font: 1.05rem var(--fuente);
+  padding: 14px;
+  border-radius: 12px;
+  border: 1.5px solid var(--borde);
+  background: var(--fondo);
+  color: var(--texto);
+}
+.campo input:focus { outline: none; border-color: var(--acento); }
+.instrucciones { margin: 0; padding: 16px 16px 16px 36px; border-radius: var(--radio); background: var(--superficie); display: grid; gap: 8px; font-size: 0.95rem; }
+.centrado { text-align: center; }
+
+.certificado {
+  display: grid;
+  gap: 16px;
+  padding: 22px 20px;
+  border-radius: 20px;
+  border: 2px solid var(--acento);
+  background: var(--fondo);
+}
+.certificado__persona { display: grid; gap: 2px; }
+.certificado__persona strong { font-size: 1.4rem; line-height: 1.25; }
+.certificado__persona span { font: 600 1.05rem var(--mono); color: var(--suave); }
+.certificado__total { display: grid; gap: 2px; padding: 14px; border-radius: var(--radio); background: var(--acento-suave); text-align: center; }
+.certificado__total strong { font-size: 2.6rem; line-height: 1.1; color: var(--acento); font-variant-numeric: tabular-nums; }
+.certificado__total span { font-size: 0.9rem; color: var(--suave); }
+.desglose { width: 100%; border-collapse: collapse; font-size: 0.95rem; font-variant-numeric: tabular-nums; }
+.desglose th { text-align: left; font-size: 0.8rem; color: var(--suave); font-weight: 600; padding: 0 0 6px; }
+.desglose td { padding: 7px 0; border-top: 1px solid var(--borde); }
+.desglose th:not(:first-child), .desglose td:not(:first-child) { text-align: right; width: 22%; }
+.certificado__fecha { font-size: 0.85rem; color: var(--suave); text-align: center; }

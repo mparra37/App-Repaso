@@ -68,6 +68,7 @@ const almacen = {
 // ---------- progreso y puntos ----------
 
 const estado = Object.assign({ quiz: {}, ej: {}, pistas: {} }, almacen.leer("estado", {}));
+let perfil = almacen.leer("perfil", null);
 
 function guardarEstado() {
   almacen.guardar("estado", estado);
@@ -344,7 +345,7 @@ function vistaInicio() {
     el(
       "div",
       { class: "encabezado" },
-      el("h1", {}, "Repaso de Python"),
+      el("h1", {}, `Hola, ${perfil.nombre.split(/\s+/)[0]}`),
       el("p", { class: "texto-suave" }, "Resuelve en papel, toma foto y suma puntos."),
     ),
     el(
@@ -366,11 +367,12 @@ function vistaInicio() {
         ),
       ),
     ),
-    empezado
-      ? el(
-          "div",
-          { class: "pie-inicio" },
-          boton(
+    el(
+      "div",
+      { class: "pie-inicio" },
+      boton("Cambiar nombre", () => ir("#/registro"), "boton--enlace"),
+      empezado
+        ? boton(
             "Reiniciar puntos",
             () => {
               if (!confirm("¿Borrar todos tus puntos y empezar de cero?")) return;
@@ -381,10 +383,105 @@ function vistaInicio() {
               mostrar();
             },
             "boton--enlace",
-          ),
-        )
-      : null,
-    barraAcciones(boton(empezado ? "Continuar →" : "Empezar →", () => ir(siguientePendiente()))),
+          )
+        : null,
+    ),
+    barraAcciones(
+      boton("🏁 Mi resultado", () => ir("#/resultado"), "boton--claro"),
+      boton(empezado ? "Continuar →" : "Empezar →", () => ir(siguientePendiente())),
+    ),
+  ];
+}
+
+// ---------- registro y resultado ----------
+
+function vistaRegistro() {
+  const nombre = el("input", { id: "nombre", autocomplete: "name", autocapitalize: "words", value: perfil?.nombre || "" });
+  const matricula = el("input", { id: "matricula", autocomplete: "off", autocapitalize: "characters", spellcheck: "false", value: perfil?.matricula || "" });
+  const aviso = el("p", { class: "estado", "aria-live": "polite" });
+  const pasosJuego = [
+    ["Calentamiento", "preguntas de opción múltiple: elige y pulsa Enviar."],
+    ["Ejercicios", "resuélvelos en papel, toma foto y pulsa Revisar."],
+    ["Puntos", "los niveles más difíciles valen más; cada pista resta 1 ★."],
+    ["Al final", "pulsa 🏁 Mi resultado, toma captura de pantalla y súbela a Canvas."],
+  ];
+
+  function guardar(evento) {
+    evento.preventDefault();
+    const datosPerfil = { nombre: nombre.value.trim().replace(/\s+/g, " "), matricula: matricula.value.trim() };
+    if (!datosPerfil.nombre || !datosPerfil.matricula) {
+      aviso.textContent = "Escribe tu nombre y tu matrícula.";
+      return;
+    }
+    perfil = datosPerfil;
+    almacen.guardar("perfil", perfil);
+    ir("#/");
+  }
+
+  const forma = el(
+    "form",
+    { class: "registro", onsubmit: guardar, novalidate: true },
+    el("label", { class: "campo", for: "nombre" }, el("span", {}, "Nombre completo"), nombre),
+    el("label", { class: "campo", for: "matricula" }, el("span", {}, "Matrícula"), matricula),
+    aviso,
+  );
+
+  return [
+    el("div", { class: "encabezado" }, el("h1", {}, "Repaso de Python"), el("p", { class: "texto-suave" }, "TC1037 · Funciones, math y condicionales")),
+    forma,
+    el(
+      "ol",
+      { class: "instrucciones" },
+      pasosJuego.map(([titulo, texto]) => el("li", {}, el("strong", {}, `${titulo}: `), texto)),
+    ),
+    barraAcciones(boton(perfil ? "Guardar" : "Empezar →", () => forma.requestSubmit())),
+  ];
+}
+
+function vistaResultado() {
+  const ahora = new Date();
+  const fecha = ahora.toLocaleDateString("es-MX", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
+  const hora = ahora.toLocaleTimeString("es-MX", { hour: "2-digit", minute: "2-digit" });
+  const filas = [
+    { nombre: "Calentamiento", hechos: aciertosQuiz(), total: datos.quiz.length, puntos: aciertosQuiz() },
+    ...datos.niveles.map((nivel) => {
+      const lista = datos.ejercicios.filter((e) => e.nivel === nivel.id);
+      const resueltos = lista.filter((e) => estado.ej[e.id] !== undefined);
+      return {
+        nombre: nivel.nombre,
+        hechos: resueltos.length,
+        total: lista.length,
+        puntos: resueltos.reduce((suma, e) => suma + estado.ej[e.id], 0),
+      };
+    }),
+  ];
+
+  return [
+    el(
+      "section",
+      { class: "certificado", "aria-label": "Resultado final" },
+      el("p", { class: "etiqueta" }, "Repaso TC1037 · Resultado"),
+      el("div", { class: "certificado__persona" }, el("strong", {}, perfil.nombre), el("span", {}, perfil.matricula)),
+      el(
+        "div",
+        { class: "certificado__total" },
+        el("strong", {}, `★ ${puntosTotales()}`),
+        el("span", {}, `${ejerciciosResueltos()} de ${datos.ejercicios.length} ejercicios · ${aciertosQuiz()} de ${datos.quiz.length} en calentamiento`),
+      ),
+      el(
+        "table",
+        { class: "desglose" },
+        el("thead", {}, el("tr", {}, el("th", {}, "Sección"), el("th", {}, "Resueltos"), el("th", {}, "★"))),
+        el(
+          "tbody",
+          {},
+          filas.map((f) => el("tr", {}, el("td", {}, f.nombre), el("td", {}, `${f.hechos}/${f.total}`), el("td", {}, f.puntos))),
+        ),
+      ),
+      el("p", { class: "certificado__fecha" }, `${fecha} · ${hora}`),
+    ),
+    el("p", { class: "texto-suave centrado" }, "Toma captura de esta pantalla y súbela a Canvas."),
+    barraAcciones(boton("← Volver", () => ir("#/"), "boton--claro")),
   ];
 }
 
@@ -765,7 +862,12 @@ function mostrar() {
   const ruta = location.hash.replace(/^#\/?/, "");
   let contenido = null;
   let titulo = "Repaso TC1037";
-  if (ruta === "quiz/fin") {
+  if (!perfil || ruta === "registro") {
+    contenido = vistaRegistro();
+  } else if (ruta === "resultado") {
+    contenido = vistaResultado();
+    titulo = "Mi resultado · Repaso TC1037";
+  } else if (ruta === "quiz/fin") {
     contenido = vistaQuizFin();
   } else if (ruta.startsWith("quiz/")) {
     const numero = Number(ruta.slice(5));
